@@ -77,7 +77,7 @@ How to listen event :
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            let button = document.querySelector('ini-button');
+            let button = document.querySelector('my-button');
 
             button.addEventListener('btnClicked', function (e) {
                 console.log('identifier clicked : ' + e.detail.identifier);
@@ -92,7 +92,7 @@ How to listen event :
 After the component has been rendered, you can update the attributes, and the component will be re-rendered :
 
 ```js
-let button = document.querySelector('ini-button');
+let button = document.querySelector('my-button');
 button.someString = "Good bye";
 // or
 button.setAttribute("some-string", "Good bye");
@@ -101,3 +101,11 @@ button.someArray = [1, 2, 3];
 button.someBool = true;
 // ...
 ```
+## API
+The `register` function has as parameters :
+
+- `ReactComponent` The React component that needs to be turned into a WebComponent.
+- `name` The name of the desired WebComponent tag.
+- `React` The version of [React](https://www.npmjs.com/package/react) that was used to create the components.
+- `ReactDOM` The version of [ReactDOM](https://www.npmjs.com/package/react-dom) that was used to create the components.
+- `modeShadow = false` Create components in [shadow](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) mode.
