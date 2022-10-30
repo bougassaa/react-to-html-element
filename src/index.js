@@ -76,7 +76,9 @@ export function register(ReactComponent, name, React, ReactDOM, modeShadow = fal
                 this.reactRoot = ReactDOM.createRoot(container);
             }
 
-            this.reactRoot.render(<ReactComponent {...props}>{this.reactChildren}</ReactComponent>);
+            this.reactRoot.render(
+                React.createElement(ReactComponent, props, this.reactChildren)
+            );
         }
 
         getProps() {
