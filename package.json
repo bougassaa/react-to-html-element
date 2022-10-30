@@ -1,0 +1,45 @@
+{
+  "name": "react-to-html-element",
+  "version": "1.0.0",
+  "description": "Converts React Components to Web Component (also known as WebComponent, Custom Element, HTML Element)",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bougassaa/react-to-html-element.git"
+  },
+  "keywords": [
+    "react to web component",
+    "react to webcomponent",
+    "react to html",
+    "react to custom element",
+    "react html",
+    "react component html",
+    "react component web component",
+    "react component webcomponent",
+    "react component custom element",
+    "convert react",
+    "convert react to webcomponent",
+    "WebComponent",
+    "WebComponents",
+    "Web Component",
+    "HTMLElement",
+    "HTMLElements",
+    "Custom elements",
+    "React",
+    "ReactDOM",
+    "HTML"
+  ],
+  "author": "Amine Bougassaa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bougassaa/react-to-html-element/issues"
+  },
+  "homepage": "https://github.com/bougassaa/react-to-html-element#readme",
+  "dependencies": {
+    "html-to-react": "^1.5.0",
+    "parse-prop-types": "^0.3.0"
+  }
+}
