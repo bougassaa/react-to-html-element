@@ -55,6 +55,11 @@ const convertAttribute = (attribute, propsTypes) => {
  * @return HTMLElement
  */
 export function register(ReactComponent, name, React, ReactDOM, modeShadow = false) {
+    if (!React || !ReactDOM) {
+        console.error("React and ReactDOM parameters must not be empty");
+        return null;
+    }
+
     const propsTypes = parsePropTypes(ReactComponent);
 
     class WebComponent extends HTMLElement {
