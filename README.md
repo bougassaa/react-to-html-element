@@ -8,7 +8,6 @@ Sections :
 - [RootElement](#rootelement)
 - [Extend the WebComponent](#extend-the-webcomponent)
 - [Usage of Ref](#usage-of-ref)
-- [Usage of Ref](#usage-of-ref)
 - [Update attributes](#update-attributes)
 - [API](#api)
 
