@@ -1,4 +1,3 @@
-import parsePropTypes from 'parse-prop-types';
 import { Parser, ProcessingInstructions } from 'html-to-react';
 
 const toCamelCase = (str = "") => {
@@ -24,17 +23,16 @@ const parseChildren = (str) => {
 const convertAttribute = (attribute, propsTypes) => {
     let propName = toCamelCase(attribute.name);
     let propValue = attribute.value;
-    let propType = propsTypes[propName]?.type?.name;
 
-    switch (propType) {
-        case "number":
+    switch (propsTypes[propName]) {
+        case Number:
             propValue = Number(propValue);
             break;
-        case "bool":
+        case Boolean:
             propValue = !/^(false|0)$/i.test(propValue);
             break;
-        case "array":
-        case "object":
+        case Array:
+        case Object:
             propValue = JSON.parse(propValue);
             break;
     }
@@ -62,7 +60,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
         return null;
     }
 
-    const propsTypes = parsePropTypes(ReactComponent);
+    const propsTypes = ReactComponent.componentProps ?? {};
 
     class WebComponent extends HTMLElement {
         reactRoot = null;

@@ -1,6 +1,6 @@
 {
   "name": "react-to-html-element",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Converts React Components to Web Component (also known as WebComponent, Custom Element, HTML Element)",
   "main": "src/index.js",
   "scripts": {
@@ -39,8 +39,7 @@
   },
   "homepage": "https://github.com/bougassaa/react-to-html-element#readme",
   "dependencies": {
-    "html-to-react": "^1.5.0",
-    "parse-prop-types": "^0.3.0"
+    "html-to-react": "^1.5.0"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^7.6.6",

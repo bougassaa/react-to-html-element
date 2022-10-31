@@ -12,37 +12,37 @@ Sections :
 - [API](#api)
 
 ## Usages
-The React component must declare its properties using [proptypes](https://www.npmjs.com/package/prop-types).
+The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below. The use of [proptypes](https://www.npmjs.com/package/prop-types) has been removed, because in production mode `propTypes` is removed from the React component.
 
 ```js
-// ...
-import PropTypes from 'prop-types';
+import React from 'react';
 
-const MyButton = ({ isDisabled, identifier, someString, someObject, someArray, children }) => {
+const MyButton = ({ someBool, someNumber, someString, someObject, someArray, children }) => {
     // do anything here with properties
-    return <button disabled={isDisabled} data-identifier={identifier} data-extra={someString}>{children}</button>
+    return (
+        <button disabled={someBool} data-identifier={someNumber} data-extra={someString}>
+            {children}
+        </button>
+    );
 }
 
-MyButton.propTypes = {
-    isDisabled: PropTypes.bool,
-    identifier: PropTypes.number,
-    someString: PropTypes.string,
-    someObject: PropTypes.object,
-    someArray: PropTypes.array,
+MyButton.componentProps = {
+    someBool: Boolean,
+    someNumber: Number,
+    someString: String,
+    someObject: Object,
+    someArray: Array,
 }
 ```
 
-The `children` and `rootElement` properties do not need to be declared, they will be automatically injected into the component.
+The `children`, `rootElement` and `ref` properties do not need to be declared, they will be automatically injected into the component.
 
 Then after declaring the properties, you must register your React components as WebComponent, like this :
 
 ```js
 import React from 'react';
 import * as ReactDOM from "react-dom/client";
-
-// ⚠️ always import react-to-html-element before importing your components
 import { register } from "react-to-html-element";
-
 import MyButton from "./src/MyButton";
 
 register(MyButton, 'my-button', React, ReactDOM);
@@ -55,7 +55,7 @@ Use of the web component created :
 ```html
 <html>
 <body>
-   <my-button is-disabled="true" identifier="45" some-string="Hello" some-object='{"name": "Will"}' some-array="[1, 2, 3]">
+   <my-button some-bool="true" some-number="45" some-string="Hello" some-object='{"name": "Will"}' some-array="[1, 2, 3]">
        It's a Button
    </my-button>
 </body>
@@ -124,7 +124,6 @@ Let's take the example of a React component that has a function that can be call
 
 ```js
 import React, {forwardRef, useImperativeHandle} from 'react';
-import PropTypes from "prop-types";
 
 const MyInput = forwardRef(({placeholder}, ref) => {
 
@@ -138,8 +137,8 @@ const MyInput = forwardRef(({placeholder}, ref) => {
     return <input placeholder={placeholder} type="text"/>;
 });
 
-MyInput.propTypes = {
-    placeholder: PropTypes.string,
+MyInput.componentProps = {
+    placeholder: String,
 }
 
 export default MyInput;
