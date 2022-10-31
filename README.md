@@ -88,6 +88,93 @@ How to listen event :
 </html>
 ```
 
+## Extend the WebComponent
+You can create an extension of the WebComponent to suit your needs, by adding `{returnElement: true}` as options. and then it's up to you to define the WebComponent in the DOM.
+```js
+// ...
+import { register } from "react-to-html-element";
+import MyButton from "./src/MyButton";
+
+class WCButton extends register(MyButton, null, React, ReactDOM, {returnElement: true})
+{
+    constructor(props) {
+        super(props);
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        console.log('Component connected to the DOM');
+    }
+}
+
+customElements.define('my-button', WCButton); // define your component to the DOM
+```
+
+## Usage of Ref
+Let's take the example of a React component that has a function that can be called from the DOM, for example validating that an input is valid and returning `true` if it is or otherwise `false`.
+
+```js
+import React, {forwardRef, useImperativeHandle} from 'react';
+import PropTypes from "prop-types";
+
+const MyInput = forwardRef(({placeholder}, ref) => {
+
+    useImperativeHandle(ref, () => ({
+        isValid: () => {
+            // put logic here
+            return true; // or return false
+        }
+    }));
+
+    return <input placeholder={placeholder} type="text"/>;
+});
+
+MyInput.propTypes = {
+    placeholder: PropTypes.string,
+}
+
+export default MyInput;
+```
+There are 3 important points :
+
+- The component must be wrapped with [forwardRef](https://reactjs.org/docs/react-api.html#reactforwardref) hook.
+- Add as second parameter the variable `ref`, example `(props, ref) or ({props1, prop2}, ref)`.
+- Use the [useImperativeHandle](https://reactjs.org/docs/hooks-reference.html#useimperativehandle) hook to expose functions outside the component.
+
+After doing that, now here is an example of how to register the component :
+```js
+// ...
+import { register } from "react-to-html-element";
+import MyInput from "./src/MyInput";
+
+class WCInput extends register(MyInput, null, React, ReactDOM, {returnElement: true, hasReactRef: true})
+{
+    constructor(props) {
+        super(props);
+    }
+    
+    async isInputValidAsync() {
+        let ref = await this.getAsyncReactRef();
+        return ref.isValid(); // call the React component function
+    }
+    
+    isInputValid() { // or you can do it like this
+        return this.getReactRef().isValid(); // call the React component function
+    }
+}
+
+customElements.define('my-input', WCInput); // define your component to the DOM
+
+// call function like this :
+let input = document.querySelector('my-input');
+let isValid = input.isInputValid();
+
+// or with async (inside async function) :
+let input = document.querySelector('my-input');
+let isValid = await input.isInputValidAsync();
+```
+The asynchronous should be used in case the WebComponent may not be ready in the DOM yet, to avoid having `undefined`
+
 ## Update attributes
 After the component has been rendered, you can update the attributes, and the component will be re-rendered :
 
@@ -108,4 +195,7 @@ The `register` function has as parameters :
 - `name` The name of the desired WebComponent tag.
 - `React` The version of [React](https://www.npmjs.com/package/react) that was used to create the components.
 - `ReactDOM` The version of [ReactDOM](https://www.npmjs.com/package/react-dom) that was used to create the components.
-- `modeShadow = false` Create components in [shadow](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) mode.
+- `options` : object of options `default = {modeShadow: false, returnElement: false, hasReactRef: false}`
+  - `modeShadow` Create components in [shadow](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) mode.
+  - `returnElement` The function returns the WebComponent to be overridden
+  - `hasReactRef` The React component will have [ref](https://reactjs.org/docs/refs-and-the-dom.html) functionality enabled

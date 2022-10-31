@@ -50,11 +50,13 @@ const convertAttribute = (attribute, propsTypes) => {
  * @param name {String}
  * @param React {React}
  * @param ReactDOM {ReactDOM}
- * @param modeShadow {Boolean}
+ * @param options {Object}
  *
  * @return HTMLElement
  */
-export function register(ReactComponent, name, React, ReactDOM, modeShadow = false) {
+export function register(ReactComponent, name, React, ReactDOM, options = {}) {
+    options = {...{modeShadow: false, returnElement: false, hasReactRef: false}, ...options}
+
     if (!React || !ReactDOM) {
         console.error("React and ReactDOM parameters must not be empty");
         return null;
@@ -64,6 +66,7 @@ export function register(ReactComponent, name, React, ReactDOM, modeShadow = fal
 
     class WebComponent extends HTMLElement {
         reactRoot = null;
+        reactElement = null;
         reactChildren = null;
 
         connectedCallback() {
@@ -74,16 +77,20 @@ export function register(ReactComponent, name, React, ReactDOM, modeShadow = fal
         renderRoot() {
             let props = this.getProps();
 
+            if (options.hasReactRef) {
+                props.ref = React.createRef(); // inject ref parameter inside ReactComponent props (can be used to call function inside component)
+            }
+
             props.rootElement = this; // inject web component inside ReactComponent props (can be used to dispatch events)
 
             if (!this.reactRoot) { // create React root for the first rendering
-                let container = modeShadow ? this.attachShadow({ mode: 'open' }) : this;
+                let container = options.modeShadow ? this.attachShadow({ mode: 'open' }) : this;
                 this.reactRoot = ReactDOM.createRoot(container);
             }
 
-            this.reactRoot.render(
-                React.createElement(ReactComponent, props, this.reactChildren)
-            );
+            this.reactElement = React.createElement(ReactComponent, props, this.reactChildren);
+
+            this.reactRoot.render(this.reactElement);
         }
 
         getProps() {
@@ -98,6 +105,31 @@ export function register(ReactComponent, name, React, ReactDOM, modeShadow = fal
             if (this.reactRoot) { // on each change of props, re-render the component
                 this.renderRoot();
             }
+        }
+
+        getReactRef() {
+            if (this.reactElement?.ref?.current) {
+                return this.reactElement.ref.current;
+            }
+            console.warn("You're calling the ref when the React component isn't ready yet. Otherwise you forgot to use forwardRef to your React component")
+        }
+
+        getAsyncReactRef() {
+            let time = Date.now();
+            return new Promise((resolve, reject) => {
+                let interval = setInterval(() => {
+                    if (this.reactElement?.ref?.current) {
+                        clearInterval(interval);
+                        resolve(this.reactElement.ref.current);
+                    }
+
+                    if (time + 3000 < Date.now()) { // waiting for the component to be ready for 3 seconds max
+                        console.warn("ref not found on this component, check that you have used forwardRef on your React component");
+                        clearInterval(interval);
+                        reject(false);
+                    }
+                }, 0);
+            });
         }
 
         static get observedAttributes() {
@@ -116,6 +148,10 @@ export function register(ReactComponent, name, React, ReactDOM, modeShadow = fal
             },
         });
     })
+
+    if (options.returnElement) {
+        return WebComponent;
+    }
 
     customElements.define(name, WebComponent);
 }
