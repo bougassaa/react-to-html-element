@@ -2,6 +2,16 @@
 
 `react-to-html-element` turns a React component into a Web Component.
 
+Sections :
+
+- [Basic usage](#usages)
+- [RootElement](#rootelement)
+- [Extend the WebComponent](#extend-the-webcomponent)
+- [Usage of Ref](#usage-of-ref)
+- [Usage of Ref](#usage-of-ref)
+- [Update attributes](#update-attributes)
+- [API](#api)
+
 ## Usages
 The React component must declare its properties using [proptypes](https://www.npmjs.com/package/prop-types).
 
@@ -174,6 +184,29 @@ let input = document.querySelector('my-input');
 let isValid = await input.isInputValidAsync();
 ```
 The asynchronous should be used in case the WebComponent may not be ready in the DOM yet, to avoid having `undefined`
+
+Below is another example of using the ref to sibling the input inside a React component and toggle focus on it :
+```js
+// ...
+const MyInput = forwardRef((props, ref) => {
+    return <input ref={ref} type="text"/>;
+});
+
+class WCInput extends register(MyInput, null, React, ReactDOM, {returnElement: true, hasReactRef: true})
+{
+    // ...
+    focusInput() {
+        this.getReactRef().focus(); // call focus method of input
+    }
+}
+
+// clicking on a button activates the focus on the input :
+let input = document.querySelector('my-input');
+
+button.addEventListener('click', function () {
+    input.focusInput();
+});
+```
 
 ## Update attributes
 After the component has been rendered, you can update the attributes, and the component will be re-rendered :
