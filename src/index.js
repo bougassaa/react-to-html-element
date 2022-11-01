@@ -142,7 +142,8 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
                 return this.getAttribute(toDashedStyle(propName));
             },
             set(value) {
-                this.setAttribute(toDashedStyle(propName), value);
+                const v = typeof value === 'object' ? JSON.stringify(value) : value;
+                this.setAttribute(toDashedStyle(propName), v);
             },
         });
     })
