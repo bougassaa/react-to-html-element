@@ -10,15 +10,16 @@
 Sections :
 
 - [Basic usage](#usages)
-- [RootElement](#rootelement)
 - [Extend the WebComponent](#extend-the-webcomponent)
 - [Slots](#slots)
+- [RootElement](#rootelement)
 - [Usage of Ref](#usage-of-ref)
 - [Update attributes](#update-attributes)
 - [API](#api)
 
 ## Usages
-The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below. The use of [proptypes](https://www.npmjs.com/package/prop-types) has been removed, because in production mode `propTypes` is removed from the React component.
+The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below. 
+<br><sub>The use of [prop-types](https://www.npmjs.com/package/prop-types) has been removed, because in production mode `propTypes` is removed from the React component.</sub>
 
 ```js
 import React from 'react';
@@ -65,41 +66,6 @@ Use of the web component created :
    <my-button some-bool="true" some-number="45" some-string="Hello" some-object='{"name": "Will"}' some-array="[1, 2, 3]">
        It's a Button
    </my-button>
-</body>
-</html>
-```
-
-## rootElement
-
-This is a property injected into all registered React components, which corresponds to the instance of the WebComponent `rootElement instanceof HTMLElement`. For example, it can be used to trigger or intercept JavaScript events :
-
-```js
-function MyButton({ someString, rootElement }) {
-    const buttonClicked = () => {
-        const event = new CustomEvent('btnClicked', { detail: {identifier: 45}})
-        rootElement.dispatchEvent(event)
-    }
-
-    return (
-        <button onClick={buttonClicked}>{someString}</button>
-    );
-}
-```
-How to listen event :
-```html
-<html>
-<body>
-    <my-button some-string="Hello"></my-button>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            let button = document.querySelector('my-button');
-
-            button.addEventListener('btnClicked', function (e) {
-                console.log('identifier clicked : ' + e.detail.identifier);
-            });
-        })
-    </script>
 </body>
 </html>
 ```
@@ -160,6 +126,40 @@ MyDialog.componentProps = {
     body: Node,
     footer: Node,
 }
+```
+
+## rootElement
+This is a property injected into all registered React components, which corresponds to the instance of the WebComponent `rootElement instanceof HTMLElement`. For example, it can be used to trigger or intercept JavaScript events :
+
+```js
+function MyButton({ someString, rootElement }) {
+    const buttonClicked = () => {
+        const event = new CustomEvent('btnClicked', { detail: {identifier: 45}})
+        rootElement.dispatchEvent(event)
+    }
+
+    return (
+        <button onClick={buttonClicked}>{someString}</button>
+    );
+}
+```
+How to listen event :
+```html
+<html>
+<body>
+    <my-button some-string="Hello"></my-button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let button = document.querySelector('my-button');
+
+            button.addEventListener('btnClicked', function (e) {
+                console.log('identifier clicked : ' + e.detail.identifier);
+            });
+        })
+    </script>
+</body>
+</html>
 ```
 
 ## Usage of Ref

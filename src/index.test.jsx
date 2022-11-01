@@ -339,3 +339,70 @@ it("check slots", async () => {
         i++;
     });
 });
+
+it("check property changed", async () => {
+    const TestButton = ({ label }) => <button>{label}</button>;
+
+    TestButton.componentProps = {
+        label: String
+    }
+
+    const document = defineElement(TestButton, 'test-button');
+
+    const button = document.createElement('test-button');
+    button.label = "foo";
+    document.body.appendChild(button);
+
+    let element = await queryDOM(document, 'test-button');
+
+    expect(element.firstChild.innerText).toBe("foo");
+
+    element.label = "bar"
+
+    element = await queryDOM(document, 'test-button');
+
+    expect(element.firstChild.innerText).toBe("bar");
+    expect(element.getAttribute("label")).toBe("bar");
+});
+
+it("check getAttributes", async () => {
+    const TestButton = ({ label }) => <button>{label}</button>;
+
+    TestButton.componentProps = {
+        label: String
+    }
+
+    const document = defineElement(TestButton, 'test-button');
+
+    const button = document.createElement('test-button');
+    button.label = "foo";
+    document.body.appendChild(button);
+
+    let element = await queryDOM(document, 'test-button');
+
+    expect(element.getAttribute("label")).toBe("foo");
+});
+
+it("check child with empty string", async () => {
+    const TestContainer = ({ children }) => <div>{children}</div>;
+
+    const document = defineElement(TestContainer, 'test-container');
+
+    const container = document.createElement('test-container');
+
+    let button = document.createElement('button');
+    button.innerText = 'Button';
+
+    container.append('\n    \n');
+    container.append(button);
+    container.append('\n    \n');
+
+    document.body.appendChild(container);
+
+    let element = await queryDOM(document, 'test-container');
+    let buttonNode = element.firstElementChild.firstElementChild;
+
+    expect(buttonNode.nodeName).toBe("BUTTON");
+    expect(buttonNode.innerText).toBe("Button");
+});
+
