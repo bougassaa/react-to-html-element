@@ -17,7 +17,11 @@ const parseChildren = (str) => {
     const processingInstructions = new ProcessingInstructions();
     const child = parser.parseWithInstructions(str, isValidNode, processingInstructions.defaultProcessingInstructions);
 
-    return child instanceof Array ? child.filter(child => child !== false) : child;
+    if (!child) {
+        return null;
+    }
+
+    return child instanceof Array ? child.filter(child => child !== false) : [child];
 }
 
 const convertAttribute = (attribute, propsTypes) => {
@@ -73,7 +77,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
         }
 
         renderRoot() {
-            let props = this.getProps();
+            let props = {...this.getProps(), ...this.getSlots()};
 
             if (options.hasReactRef) {
                 props.ref = React.createRef(); // inject ref parameter inside ReactComponent props (can be used to call function inside component)
@@ -97,6 +101,28 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
                 .map(attr => convertAttribute(attr, propsTypes))
                 .reduce((props, prop) =>
                     ({...props, [prop.name]: prop.value}), {});
+        }
+
+        getSlots() {
+            let slots = {};
+
+            if (this.reactChildren instanceof Array) {
+                this.reactChildren.forEach(child => {
+                    let name;
+
+                    if (child.type === "slot" && child?.props?.name) {
+                        name = child.props.name;
+                    } else if (child?.props?.slot) {
+                        name = child.props.slot;
+                    }
+
+                    if (name && propsTypes[name] === Node) {
+                        slots[name] = child;
+                    }
+                })
+            }
+
+            return slots;
         }
 
         attributeChangedCallback(name, oldValue, newValue) {

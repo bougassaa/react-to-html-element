@@ -1,6 +1,6 @@
 {
   "name": "react-to-html-element",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "description": "Converts React Components to Web Component (also known as WebComponent, Custom Element, HTML Element)",
   "main": "src/index.js",
   "scripts": {

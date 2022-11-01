@@ -255,3 +255,87 @@ it("check ref component", async () => {
 
     expect(document.activeElement).toBe(element.firstChild);
 });
+
+it("check multiple children", async () => {
+    const TestContainer = ({ children }) =>  <div>{children}</div>;
+
+    const document = defineElement(TestContainer, 'test-container');
+
+    const container = document.createElement('test-container');
+    const elem1 = document.createElement('p');
+    const elem2 = document.createElement('div');
+    const elem3 = document.createElement('div');
+
+    elem1.innerText = "Paragraph";
+    elem2.innerText = "First div";
+    elem3.innerText = "Second div";
+
+    container.appendChild(elem1);
+    container.appendChild(elem2);
+    container.appendChild(elem3);
+
+    document.body.appendChild(container);
+
+    let element = await queryDOM(document, 'test-container');
+
+    expect(element.firstChild.childElementCount).toBe(3);
+
+    let i = 1;
+    element.firstChild.childNodes.forEach((child) => {
+        if (i === 1) {
+            expect(child.nodeName).toBe("P");
+            expect(child.innerText).toBe("Paragraph");
+        } else if (i === 2) {
+            expect(child.nodeName).toBe("DIV");
+            expect(child.innerText).toBe("First div");
+        } else if (i === 3) {
+            expect(child.nodeName).toBe("DIV");
+            expect(child.innerText).toBe("Second div");
+        }
+
+        i++;
+    });
+});
+
+it("check slots", async () => {
+    const TestContainer = ({ slot1, slot2 }) =>  <div>{slot1}{slot2}</div>;
+
+    TestContainer.componentProps = {
+        slot1: Node,
+        slot2: Node
+    }
+
+    const document = defineElement(TestContainer, 'test-container');
+
+    const container = document.createElement('test-container');
+    const slot1 = document.createElement('p');
+    const slot2 = document.createElement('slot');
+
+    slot1.slot = "slot1";
+    slot1.innerText = "foo";
+
+    slot2.name = "slot2";
+    slot2.innerText = "bar";
+
+    container.appendChild(slot1);
+    container.appendChild(slot2);
+
+    document.body.appendChild(container);
+
+    let element = await queryDOM(document, 'test-container');
+
+    expect(element.firstChild.childElementCount).toBe(2);
+
+    let i = 1;
+    element.firstChild.childNodes.forEach((child) => {
+        if (i === 1) {
+            expect(child.nodeName).toBe("P");
+            expect(child.innerText).toBe("foo");
+        } else if (i === 2) {
+            expect(child.nodeName).toBe("SLOT");
+            expect(child.innerText).toBe("bar");
+        }
+
+        i++;
+    });
+});

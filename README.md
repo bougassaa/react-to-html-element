@@ -12,6 +12,7 @@ Sections :
 - [Basic usage](#usages)
 - [RootElement](#rootelement)
 - [Extend the WebComponent](#extend-the-webcomponent)
+- [Slots](#slots)
 - [Usage of Ref](#usage-of-ref)
 - [Update attributes](#update-attributes)
 - [API](#api)
@@ -22,7 +23,7 @@ The React component must declare its properties and their types in the static `c
 ```js
 import React from 'react';
 
-const MyButton = ({ someBool, someNumber, someString, someObject, someArray, children }) => {
+const MyButton = ({ someBool, someNumber, someString, someObject, someArray, someSlot, children }) => {
     // do anything here with properties
     return (
         <button disabled={someBool} data-identifier={someNumber} data-extra={someString}>
@@ -37,6 +38,7 @@ MyButton.componentProps = {
     someString: String,
     someObject: Object,
     someArray: Array,
+    someSlot: Node,
 }
 ```
 
@@ -122,6 +124,42 @@ class WCButton extends register(MyButton, null, React, ReactDOM, {returnElement:
 }
 
 customElements.define('my-button', WCButton); // define your component to the DOM
+```
+
+## Slots
+It is possible to add [slots](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot) in your custom elements. They will be added to the React component props. Here is an example of how to do it :
+```html
+<my-dialog>
+    <slot name="header">...</slot>
+    <slot name="body">...</slot>
+    <slot name="footer">...</slot>
+</my-dialog>
+<!-- Or else you can do as below -->
+<my-dialog>
+    <h3 slot="header">...</h3>
+    <p slot="body">...</p>
+    <div slot="footer">...</div>
+</my-dialog>
+```
+In your React component :
+```js
+import React from 'react';
+
+const MyDialog = ({ header, body, footer }) => {
+    return (
+        <div>
+            <div>{header}</div>
+            <div>{body}</div>
+            <div>{footer}</div>
+        </div>
+    );
+}
+
+MyDialog.componentProps = {
+    header: Node,
+    body: Node,
+    footer: Node,
+}
 ```
 
 ## Usage of Ref
