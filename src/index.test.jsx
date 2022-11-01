@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import React, {useState} from "react";
+import React, {forwardRef, useState} from "react";
 import * as ReactDOM from "react-dom/client";
 import { Window } from 'happy-dom';
 import { register } from "./index";
@@ -168,4 +168,90 @@ it("check use state", async () => {
 
     expect(element.firstChild.nodeName).toBe("SPAN");
     expect(element.firstChild.innerText).toBe("span");
+});
+
+it("check component render many elements", async () => {
+    const TestSpans = () => (
+        <>
+            <span>span1</span>
+            <span>span2</span>
+            <span>span3</span>
+        </>
+    );
+
+    const document = defineElement(TestSpans, 'test-spans');
+
+    const spans = document.createElement('test-spans');
+    document.body.appendChild(spans);
+
+    let element = await queryDOM(document, 'test-spans');
+
+    expect(element.childElementCount).toBe(3);
+
+    element.childNodes.forEach((child) => {
+        expect(child.nodeName).toBe("SPAN");
+    });
+});
+
+
+it("check dispatch event", async () => {
+    const TestButton = ({ rootElement }) => {
+        const buttonClicked = () => {
+            const event = new CustomEvent('btnClicked')
+            rootElement.dispatchEvent(event)
+        }
+
+        return <button onClick={buttonClicked}>button</button>;
+    };
+
+    const document = defineElement(TestButton, 'test-button');
+
+    const button = document.createElement('test-button');
+
+    button.addEventListener('btnClicked', function () {
+        button.dataset.hasBeenClicked = "true";
+    });
+
+    document.body.appendChild(button);
+
+    let element = await queryDOM(document, 'test-button');
+
+    expect(element.dataset.hasBeenClicked).toBeUndefined();
+
+    element.firstChild.click();
+
+    element = await queryDOM(document, 'test-button');
+
+    expect(element.dataset.hasBeenClicked).toBe("true");
+});
+
+it("check ref component", async () => {
+    const TestInput = forwardRef((props, ref) => {
+        return <input ref={ref} type="text"/>;
+    });
+
+    const options = {returnElement: true, hasReactRef: true};
+
+    class WCInput extends register(TestInput, null, React, ReactDOM, options)
+    {
+        focusInput() {
+            this.getReactRef().focus();
+        }
+    }
+
+    const window = new Window();
+
+    window.customElements.define("test-input", WCInput);
+    const document = window.document;
+
+    const input = document.createElement('test-input');
+    document.body.appendChild(input);
+
+    let element = await queryDOM(document, 'test-input');
+
+    element.focusInput();
+
+    element = await queryDOM(document, 'test-input');
+
+    expect(document.activeElement).toBe(element.firstChild);
 });
