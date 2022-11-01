@@ -1,4 +1,8 @@
 [![Node.js CI](https://github.com/bougassaa/react-to-html-element/actions/workflows/node.js.yml/badge.svg?branch=master)](https://github.com/bougassaa/react-to-html-element/actions/workflows/node.js.yml)
+[![made-with-javascript](https://img.shields.io/badge/Made%20with-JavaScript-1f425f.svg)](https://www.javascript.com)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/bougassaa/react-to-html-element/graphs/commit-activity)
+[![GitHub latest commit](https://badgen.net/github/last-commit/bougassaa/react-to-html-element)](https://github.com/bougassaa/react-to-html-element/commit)
+[![Npm package version](https://badgen.net/npm/v/react-to-html-element)](https://www.npmjs.com/package/react-to-html-element)
 # react-to-html-element
 
 `react-to-html-element` turns a React component into a Web Component.
