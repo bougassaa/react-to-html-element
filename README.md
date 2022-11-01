@@ -1,3 +1,4 @@
+[![Node.js CI](https://github.com/bougassaa/react-to-html-element/actions/workflows/node.js.yml/badge.svg?branch=master)](https://github.com/bougassaa/react-to-html-element/actions/workflows/node.js.yml)
 # react-to-html-element
 
 `react-to-html-element` turns a React component into a Web Component.
