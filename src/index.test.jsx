@@ -1,32 +1,37 @@
-import {assert, expect, test, beforeEach} from 'vitest';
-import { GlobalRegistrator } from '@happy-dom/global-registrator';
+import { expect, it } from 'vitest';
 import React from "react";
 import * as ReactDOM from "react-dom/client";
-import PropTypes from "prop-types";
+import { Window } from 'happy-dom';
 import { register } from "./index";
 
-GlobalRegistrator.register();
+const queryDOM = (document, selector) => new Promise((resolve => {
+    setTimeout(_ => resolve(document.querySelector(selector)), 200);
+}));
 
-test("basics with react", () => {
-    let root = document.createElement('div');
-    document.body.appendChild(root);
+const defineElement = (ReactComponent, tagName) => {
+    const element = register(ReactComponent, null, React, ReactDOM, {returnElement: true});
+    const window = new Window();
 
+    window.customElements.define(tagName, element);
+
+    return window.document;
+}
+
+it("render simple button and check text inside", async () => {
     const TestButton = ({ label }) => <button>{label}</button>;
 
-    TestButton.propTypes = {
-        label: PropTypes.string
+    TestButton.componentProps = {
+        label: String
     }
 
-    register(TestButton, 'test-button', React, ReactDOM);
+    const document = defineElement(TestButton, 'test-button');
 
-    const el = document.createElement('test-button');
-    el.setAttribute('label', 'hello');
+    const button = document.createElement('test-button');
+    button.label = 'Button content';
+    document.body.appendChild(button);
 
-    root.appendChild(el);
+    let element = await queryDOM(document, 'test-button');
 
-    console.log(root.innerHTML);
-
-    assert(true);
+    expect(element.firstChild.nodeName).toBe('BUTTON');
+    expect(element.firstChild.innerText).toBe('Button content');
 })
-
-GlobalRegistrator.unregister();
