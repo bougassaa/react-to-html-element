@@ -4,7 +4,7 @@
   "description": "Converts React Components to Web Component (also known as WebComponent, Custom Element, HTML Element)",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "repository": {
     "type": "git",
@@ -40,5 +40,11 @@
   "homepage": "https://github.com/bougassaa/react-to-html-element#readme",
   "dependencies": {
     "html-to-react": "^1.5.0"
+  },
+  "devDependencies": {
+    "happy-dom": "^7.6.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vitest": "^0.24.3"
   }
 }
