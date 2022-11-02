@@ -72,8 +72,20 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
         reactChildren = null;
 
         connectedCallback() {
-            this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
-            this.renderRoot();
+            const childrenConnectedCallback = () => {
+                this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
+                this.renderRoot();
+            }
+
+            const observer = new MutationObserver(childrenConnectedCallback);
+            const config = { childList: true };
+            observer.observe(this, config);
+
+            // make sure to disconnect
+            setTimeout(() => {
+                observer.disconnect();
+                childrenConnectedCallback();
+            }, 0);
         }
 
         renderRoot() {
