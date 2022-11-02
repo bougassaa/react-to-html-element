@@ -147,7 +147,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
             if (this.reactElement?.ref?.current) {
                 return this.reactElement.ref.current;
             }
-            console.warn("You're calling the ref when the React component isn't ready yet. Otherwise you forgot to use forwardRef to your React component")
+            this.warnRefProblem();
         }
 
         getAsyncReactRef() {
@@ -160,12 +160,18 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
                     }
 
                     if (time + 3000 < Date.now()) { // waiting for the component to be ready for 3 seconds max
-                        console.warn("ref not found on this component, check that you have used forwardRef on your React component");
+                        this.warnRefProblem();
                         clearInterval(interval);
                         reject(false);
                     }
                 }, 0);
             });
+        }
+
+        warnRefProblem() {
+            console.warn("Ref not available, possible causes are :\n- The component is not ready yet, use the getAsyncReactRef function instead.\n" +
+                "- Check that the {hasReactRef: true} option has been added to the component registration\n- Check that you have wrapped the React component " +
+                "with the state forwardRef\n\nSee the documentation for more info https://github.com/bougassaa/react-to-html-element#usage-of-ref");
         }
 
         static get observedAttributes() {

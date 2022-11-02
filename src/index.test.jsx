@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import React, {forwardRef, useState} from "react";
+import React, {forwardRef, useImperativeHandle, useState} from "react";
 import * as ReactDOM from "react-dom/client";
 import { Window } from 'happy-dom';
 import { register } from "./index";
@@ -254,6 +254,50 @@ it("check ref component", async () => {
     element = await queryDOM(document, 'test-input');
 
     expect(document.activeElement).toBe(element.firstChild);
+});
+
+it("check ref component with function that return value", async () => {
+    const TestInput = forwardRef(({value}, ref) => {
+
+        useImperativeHandle(ref, () => ({
+            isValid: () => {
+                return value === "hello";
+            }
+        }));
+
+        return <input type="text" defaultValue={value}/>;
+    });
+
+    TestInput.componentProps = {
+        value: String
+    }
+
+    const options = {returnElement: true, hasReactRef: true};
+
+    class WCInput extends register(TestInput, null, React, ReactDOM, options)
+    {
+        isValid() {
+            return this.getReactRef().isValid();
+        }
+    }
+
+    const window = new Window();
+
+    window.customElements.define("test-input", WCInput);
+    const document = window.document;
+
+    const input = document.createElement('test-input');
+    document.body.appendChild(input);
+
+    let element = await queryDOM(document, 'test-input');
+
+    expect(element.isValid()).toBe(false);
+
+    element.value = "hello";
+
+    element = await queryDOM(document, 'test-input');
+
+    expect(element.isValid()).toBe(true);
 });
 
 it("check multiple children", async () => {
