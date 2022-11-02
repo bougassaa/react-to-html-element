@@ -8,6 +8,7 @@ const toDashedStyle = (str = "") => {
     return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()
 }
 
+// turn the innerHTML into React children
 const parseChildren = (str) => {
     const isValidNode = (node) => {
         return !(node.type === "text" && !node.data.trim()); // remove empty text elements
@@ -24,6 +25,7 @@ const parseChildren = (str) => {
     return child instanceof Array ? child.filter(child => child !== false) : [child];
 }
 
+// convert attribute values to their defined types
 const convertAttribute = (attribute, propsTypes) => {
     let propName = toCamelCase(attribute.name);
     let propValue = attribute.value;
@@ -57,13 +59,14 @@ const convertAttribute = (attribute, propsTypes) => {
  * @return HTMLElement
  */
 export function register(ReactComponent, name, React, ReactDOM, options = {}) {
+    // default options merged with user options
     options = {...{modeShadow: false, returnElement: false, hasReactRef: false}, ...options}
 
     if (!React || !ReactDOM) {
-        console.error("React and ReactDOM parameters must not be empty");
-        return null;
+        throw "React and ReactDOM parameters must not be empty";
     }
 
+    // retrieve properties and their types from the component definition
     const propsTypes = ReactComponent.componentProps ?? {};
 
     class WebComponent extends HTMLElement {
@@ -77,6 +80,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
                 this.renderRoot();
             }
 
+            // observe component children, they may take time to be ready => so [MutationObserver] used
             const observer = new MutationObserver(childrenConnectedCallback);
             const config = { childList: true };
             observer.observe(this, config);

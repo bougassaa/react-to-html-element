@@ -324,21 +324,16 @@ it("check multiple children", async () => {
 
     expect(element.firstChild.childElementCount).toBe(3);
 
-    let i = 1;
-    element.firstChild.childNodes.forEach((child) => {
-        if (i === 1) {
-            expect(child.nodeName).toBe("P");
-            expect(child.innerText).toBe("Paragraph");
-        } else if (i === 2) {
-            expect(child.nodeName).toBe("DIV");
-            expect(child.innerText).toBe("First div");
-        } else if (i === 3) {
-            expect(child.nodeName).toBe("DIV");
-            expect(child.innerText).toBe("Second div");
-        }
+    const children = element.firstChild.childNodes;
 
-        i++;
-    });
+    expect(children[0].nodeName).toBe("P");
+    expect(children[0].innerText).toBe("Paragraph");
+
+    expect(children[1].nodeName).toBe("DIV");
+    expect(children[1].innerText).toBe("First div");
+
+    expect(children[2].nodeName).toBe("DIV");
+    expect(children[2].innerText).toBe("Second div");
 });
 
 it("check slots", async () => {
@@ -370,18 +365,13 @@ it("check slots", async () => {
 
     expect(element.firstChild.childElementCount).toBe(2);
 
-    let i = 1;
-    element.firstChild.childNodes.forEach((child) => {
-        if (i === 1) {
-            expect(child.nodeName).toBe("P");
-            expect(child.innerText).toBe("foo");
-        } else if (i === 2) {
-            expect(child.nodeName).toBe("SLOT");
-            expect(child.innerText).toBe("bar");
-        }
+    const children = element.firstChild.childNodes;
 
-        i++;
-    });
+    expect(children[0].nodeName).toBe("P");
+    expect(children[0].innerText).toBe("foo");
+
+    expect(children[1].nodeName).toBe("SLOT");
+    expect(children[1].innerText).toBe("bar");
 });
 
 it("check property changed", async () => {
@@ -409,22 +399,48 @@ it("check property changed", async () => {
     expect(element.getAttribute("label")).toBe("bar");
 });
 
-it("check getAttributes", async () => {
-    const TestButton = ({ label }) => <button>{label}</button>;
+it("check getAttributes and update props", async () => {
+    const TestButton = ({ someString, someBool, someNumber, someArray, someObject }) => <button>{someString}</button>;
 
     TestButton.componentProps = {
-        label: String
+        someString: String,
+        someBool: Boolean,
+        someNumber: Number,
+        someArray: Array,
+        someObject: Object,
     }
 
     const document = defineElement(TestButton, 'test-button');
 
     const button = document.createElement('test-button');
-    button.label = "foo";
+    button.someString = "hello";
+    button.someBool = true;
+    button.someNumber = 9999;
+    button.someObject = { prop1: "foo", prop2: "bar" };
+    button.someArray = ["foo", "bar"];
     document.body.appendChild(button);
 
     let element = await queryDOM(document, 'test-button');
 
-    expect(element.getAttribute("label")).toBe("foo");
+    expect(element.getAttribute("some-string")).toBe("hello");
+    expect(element.getAttribute("some-bool")).toBe("true");
+    expect(element.getAttribute("some-number")).toBe("9999");
+    expect(element.getAttribute("some-object")).toBe('{"prop1":"foo","prop2":"bar"}');
+    expect(element.getAttribute("some-array")).toBe('["foo","bar"]');
+
+    element.someString = "bye";
+    element.someBool = false;
+    element.someNumber = 5555;
+    element.someObject = { name: "joe", city: "paris" };
+    element.someArray = [1, 2];
+
+    element = await queryDOM(document, 'test-button');
+
+    expect(element.getAttribute("some-string")).toBe("bye");
+    expect(element.getAttribute("some-bool")).toBe("false");
+    expect(element.getAttribute("some-number")).toBe("5555");
+    expect(element.getAttribute("some-object")).toBe('{"name":"joe","city":"paris"}');
+    expect(element.getAttribute("some-array")).toBe('[1,2]');
 });
 
 it("check child with empty string", async () => {
@@ -485,4 +501,31 @@ it("check function inside component that change value", async () => {
 
     expect(element.firstChild.defaultValue).toBe('Default value');
     expect(element.value).toBe('Default value');
+});
+
+it("check cascade children", async () => {
+    const TestContainer = ({ children }) => <div>{children}</div>;
+
+    const document = defineElement(TestContainer, 'test-container');
+
+    const container = document.createElement('test-container');
+    const h1 = document.createElement('h1');
+    const span = document.createElement('span');
+    const i = document.createElement('i');
+
+    span.append(i);
+    h1.append("foo bar");
+    h1.append(span);
+    container.append(h1);
+
+    document.body.appendChild(container);
+
+    let element = await queryDOM(document, 'test-container');
+    let div = element.firstChild;
+
+    expect(div.nodeName).toBe("DIV");
+    expect(div.firstChild.nodeName).toBe("H1");
+    expect(div.firstChild.childNodes[0].nodeName).toBe("#text");
+    expect(div.firstChild.childNodes[1].nodeName).toBe("SPAN");
+    expect(div.firstChild.childNodes[1].firstChild.nodeName).toBe("I");
 });
