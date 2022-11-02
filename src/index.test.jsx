@@ -450,3 +450,39 @@ it("check child with empty string", async () => {
     expect(buttonNode.innerText).toBe("Button");
 });
 
+it("check function inside component that change value", async () => {
+    const TestInput = ({ value }) => {
+        return <input defaultValue={value} type="text"/>;
+    };
+
+    TestInput.componentProps = {
+        value: String
+    }
+
+    class WCInput extends register(TestInput, null, React, ReactDOM, {returnElement: true})
+    {
+        setDefaultValue() {
+            this.value = 'Default value';
+        }
+    }
+
+    const window = new Window();
+
+    window.customElements.define("test-input", WCInput);
+    const document = window.document;
+
+    const input = document.createElement('test-input');
+    document.body.appendChild(input);
+
+    let element = await queryDOM(document, 'test-input');
+
+    expect(element.firstChild.defaultValue).toBe('');
+    expect(element.value).toBeNull();
+
+    element.setDefaultValue();
+
+    element = await queryDOM(document, 'test-input');
+
+    expect(element.firstChild.defaultValue).toBe('Default value');
+    expect(element.value).toBe('Default value');
+});
