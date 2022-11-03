@@ -374,6 +374,42 @@ it("check slots", async () => {
     expect(children[1].innerText).toBe("bar");
 });
 
+it("check many elements including slot in same page", async () => {
+    const TestContainer = ({ body }) =>  <div>{body}</div>;
+
+    TestContainer.componentProps = {
+        body: Node,
+    }
+
+    const document = defineElement(TestContainer, 'test-container');
+
+    const container1 = document.createElement('test-container');
+    const slotC1 = document.createElement('slot');
+
+    slotC1.name = "body";
+    slotC1.innerText = "foo";
+    container1.id = "container1"
+
+    container1.appendChild(slotC1);
+    document.body.appendChild(container1);
+
+    const container2 = document.createElement('test-container');
+    const slotC2 = document.createElement('slot');
+
+    slotC2.name = "body";
+    slotC2.innerText = "bar";
+    container2.id = "container2"
+
+    container2.appendChild(slotC2);
+    document.body.appendChild(container2);
+
+    const element1 = await queryDOM(document, '#container1');
+    const element2 = await queryDOM(document, '#container2');
+
+    expect(element1.firstChild.firstChild.innerText).toBe("foo");
+    expect(element2.firstChild.firstChild.innerText).toBe("bar");
+});
+
 it("check property changed", async () => {
     const TestButton = ({ label }) => <button>{label}</button>;
 
