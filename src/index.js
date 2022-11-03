@@ -73,11 +73,15 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
         reactRoot = null;
         reactElement = null;
         reactChildren = null;
+        rendered = false;
 
         connectedCallback() {
             const childrenConnectedCallback = () => {
-                this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
-                this.renderRoot();
+                if (!this.rendered) {
+                    this.rendered = true;
+                    this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
+                    this.renderRoot();
+                }
             }
 
             // observe component children, they may take time to be ready => so [MutationObserver] used
