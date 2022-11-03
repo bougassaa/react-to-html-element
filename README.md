@@ -16,6 +16,7 @@ Sections :
 - [Usage of Ref](#usage-of-ref)
 - [Update attributes](#update-attributes)
 - [API](#api)
+- [Example](#example)
 
 ## Usages
 The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below. 
@@ -41,6 +42,8 @@ MyButton.componentProps = {
     someArray: Array,
     someSlot: Node,
 }
+
+export default MyButton;
 ```
 
 The `children`, `rootElement` and `ref` properties do not need to be declared, they will be automatically injected into the component.
@@ -126,6 +129,8 @@ MyDialog.componentProps = {
     body: Node,
     footer: Node,
 }
+
+export default MyDialog;
 ```
 
 ## rootElement
@@ -273,3 +278,6 @@ The `register` function has as parameters :
   - `modeShadow` Create components in [shadow](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) mode.
   - `returnElement` The function returns the WebComponent to be overridden
   - `hasReactRef` The React component will have [ref](https://reactjs.org/docs/refs-and-the-dom.html) functionality enabled
+
+## Example
+See example on codesandbox: [https://codesandbox.io/s/react-to-html-element-397stp](https://codesandbox.io/s/react-to-html-element-397stp)
