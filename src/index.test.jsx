@@ -5,7 +5,7 @@ import { Window } from 'happy-dom';
 import { register } from "./index";
 
 const queryDOM = (document, selector) => new Promise((resolve => {
-    setTimeout(_ => resolve(document.querySelector(selector)), 100);
+    setTimeout(() => resolve(document.querySelector(selector)), 100);
 }));
 
 const defineElement = (ReactComponent, tagName) => {
@@ -421,7 +421,16 @@ it("check property changed", async () => {
 });
 
 it("check getAttributes and update props", async () => {
-    const TestButton = ({ someString, someBool, someNumber, someArray, someObject }) => <button>{someString}</button>;
+    const TestButton = ({ someString, someBool, someNumber, someArray, someObject }) =>
+        <button data-string={someString}
+                data-bool={someBool}
+                data-number={someNumber}
+                data-prop1={someObject.prop1}
+                data-prop2={someObject.prop2}
+                data-elem1={someArray[0]}
+                data-elem2={someArray[1]}>
+            button
+        </button>;
 
     TestButton.componentProps = {
         someString: String,

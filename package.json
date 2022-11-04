@@ -1,6 +1,6 @@
 {
   "name": "react-to-html-element",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Converts React Components to HTML Element (also known as Web Component, Custom Element)",
   "main": "src/index.js",
   "scripts": {
@@ -42,6 +42,8 @@
     "html-to-react": "^1.5.0"
   },
   "devDependencies": {
+    "eslint": "^8.26.0",
+    "eslint-plugin-react": "^7.31.10",
     "happy-dom": "^7.6.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

@@ -145,6 +145,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
             return slots;
         }
 
+        // eslint-disable-next-line no-unused-vars
         attributeChangedCallback(name, oldValue, newValue) {
             if (this.reactRoot) { // on each change of props, re-render the component
                 this.renderRoot();
