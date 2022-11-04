@@ -5,7 +5,7 @@
 [![Npm package version](https://badgen.net/npm/v/react-to-html-element)](https://www.npmjs.com/package/react-to-html-element)
 # react-to-html-element
 
-`react-to-html-element` turns a React component into a Web Component.
+`react-to-html-element` turns a React component into a Web Component. To see a practical case of how to use in your existing applications, see the [Example](#example) section <small>(After reading the documentation of course 😊)</small>
 
 Sections :
 
@@ -20,7 +20,7 @@ Sections :
 
 ## Usages
 The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below. 
-<br><sub>The use of [prop-types](https://www.npmjs.com/package/prop-types) has been removed, because in production mode `propTypes` is removed from the React component.</sub>
+<br><small>The use of [prop-types](https://www.npmjs.com/package/prop-types) has been removed, because in production mode `propTypes` is removed from the React component.</small>
 
 ```js
 import React from 'react';
@@ -281,3 +281,70 @@ The `register` function has as parameters :
 
 ## Example
 See example on codesandbox: [https://codesandbox.io/s/react-to-html-element-397stp](https://codesandbox.io/s/react-to-html-element-397stp)
+
+To go further, you can imagine for example having a component library in React, which you could export to all your applications, here is an example among hundreds that you could imagine.
+
+Start by creating a React app using [create-react-app](https://reactjs.org/docs/create-a-new-react-app.html). You can base yourself on the example in [codesandbox](https://codesandbox.io/s/react-to-html-element-397stp), it's exactly the same things except that we will talk about the build and include in your applications.
+
+```
+npx create-react-app my-web-components
+cd my-web-components
+```
+You can remove all the files created by create-react-app inside the `src` folder, it's up to you to create your tree (structure). You can imagine something like this :
+
+```
+my-web-components/
+└── src/
+    ├── components/
+    │   ├── MyButton.jsx
+    │   ├── MyInput.jsx
+    │   └── ...
+    ├── layouts/
+    │   ├── Header.jsx
+    │   ├── Footer.jsx
+    │   └── ...
+    ├── style/
+    │   ├── index.css
+    │   ├── my-button.css
+    │   ├── my-input.css
+    │   └── ...
+    └── index.js
+package.json
+```
+
+Install `react-to-html-element` in your project:
+
+```
+npm install react-to-html-element
+```
+
+Then it's up to you, from the README and the examples in codesandbox, create your components and **register** them in the `src/index.js` file!
+
+Then we will use the react-scripts build command which is already installed with create-react-app, being at the root of your project and doing this command :
+
+```
+npm run build
+```
+
+After the command completes, there is a `build` folder created in the root. Inside are the compiled and minified files, for example :
+
+```
+build/static/js/main.e77e15c3.js
+build/static/css/main.2e73bf20.css    👈 and if you included css
+```
+
+These files contain your WebComponents ready to be used anywhere! How to use them :
+
+```html
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="build/static/css/main.2e73bf20.css">
+    <script src="build/static/js/main.e77e15c3.js"></script> <!-- To not see flickering (or visual glitch) it is advisable to put in the head -->
+    ...
+</head>
+<body>
+    <my-button>Button</my-button>
+</body>
+</html>
+```
