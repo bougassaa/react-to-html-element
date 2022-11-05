@@ -8,35 +8,26 @@ const queryDOM = (document, selector) => new Promise((resolve => {
     setTimeout(() => resolve(document.querySelector(selector)), 100);
 }));
 
-const defineElement = (ReactComponent, tagName) => {
+const defineElement = (ReactComponent, tagName, win = null) => {
     const element = register(ReactComponent, null, React, ReactDOM, {returnElement: true});
-    const window = new Window();
+    const window = win ?? new Window();
 
     window.customElements.define(tagName, element);
 
     return window.document;
 }
 
-it("render simple button and check text inside", async () => {
-    const TestButton = ({ label }) => <button>{label}</button>;
+const assertAttributes = element => {
+    expect(element.firstChild.dataset.string).toBe("hello");
+    expect(element.firstChild.dataset.bool).toBe("true");
+    expect(element.firstChild.dataset.number.toString()).toBe("9999");
+    expect(element.firstChild.dataset.prop1).toBe("foo");
+    expect(element.firstChild.dataset.prop2).toBe("bar");
+    expect(element.firstChild.dataset.elem1).toBe("foo");
+    expect(element.firstChild.dataset.elem2).toBe("bar");
+}
 
-    TestButton.componentProps = {
-        label: String
-    }
-
-    const document = defineElement(TestButton, 'test-button');
-
-    const button = document.createElement('test-button');
-    button.label = 'Button content';
-    document.body.appendChild(button);
-
-    let element = await queryDOM(document, 'test-button');
-
-    expect(element.firstChild.nodeName).toBe('BUTTON');
-    expect(element.firstChild.innerText).toBe('Button content');
-});
-
-it("check attribute setter", async () => {
+const TestButtonAttributes = () => {
     const TestButton = ({ someString, someBool, someNumber, someArray, someObject }) =>
         <button data-string={someString}
                 data-bool={someBool}
@@ -56,7 +47,28 @@ it("check attribute setter", async () => {
         someObject: Object,
     }
 
+    return TestButton;
+}
+
+it("render simple button and check text inside", async () => {
+    const TestButton = ({ label }) => <button>{label}</button>;
+
+    TestButton.componentProps = {
+        label: String
+    }
+
     const document = defineElement(TestButton, 'test-button');
+
+    document.write(`<test-button label="Button content"></test-button>`);
+
+    let element = await queryDOM(document, 'test-button');
+
+    expect(element.firstChild.nodeName).toBe('BUTTON');
+    expect(element.firstChild.innerText).toBe('Button content');
+});
+
+it("check attribute setter", async () => {
+    const document = defineElement(TestButtonAttributes(), 'test-button');
 
     const button = document.createElement('test-button');
     button.someString = "hello";
@@ -69,36 +81,21 @@ it("check attribute setter", async () => {
 
     let element = await queryDOM(document, 'test-button');
 
-    expect(element.firstChild.dataset.string).toBe("hello");
-    expect(element.firstChild.dataset.bool).toBe("true");
-    expect(element.firstChild.dataset.number.toString()).toBe("9999");
-    expect(element.firstChild.dataset.prop1).toBe("foo");
-    expect(element.firstChild.dataset.prop2).toBe("bar");
-    expect(element.firstChild.dataset.elem1).toBe("foo");
-    expect(element.firstChild.dataset.elem2).toBe("bar");
+    assertAttributes(element);
+});
+
+it("check HTML attribute", async () => {
+    const document = defineElement(TestButtonAttributes(), 'test-button');
+
+    document.write(`<test-button some-string="hello" some-bool="true" some-number="9999" some-object='{"prop1":"foo","prop2":"bar"}' some-array='["foo","bar"]'></test-button>`);
+
+    let element = await queryDOM(document, 'test-button');
+
+    assertAttributes(element);
 });
 
 it("check setAttribute function", async () => {
-    const TestButton = ({ someString, someBool, someNumber, someArray, someObject }) =>
-        <button data-string={someString}
-                data-bool={someBool}
-                data-number={someNumber}
-                data-prop1={someObject.prop1}
-                data-prop2={someObject.prop2}
-                data-elem1={someArray[0]}
-                data-elem2={someArray[1]}>
-            button
-        </button>;
-
-    TestButton.componentProps = {
-        someString: String,
-        someBool: Boolean,
-        someNumber: Number,
-        someArray: Array,
-        someObject: Object,
-    }
-
-    const document = defineElement(TestButton, 'test-button');
+    const document = defineElement(TestButtonAttributes(), 'test-button');
 
     const button = document.createElement('test-button');
     button.setAttribute("some-string", "hello");
@@ -111,13 +108,7 @@ it("check setAttribute function", async () => {
 
     let element = await queryDOM(document, 'test-button');
 
-    expect(element.firstChild.dataset.string).toBe("hello");
-    expect(element.firstChild.dataset.bool).toBe("true");
-    expect(element.firstChild.dataset.number.toString()).toBe('9999');
-    expect(element.firstChild.dataset.prop1).toBe("foo");
-    expect(element.firstChild.dataset.prop2).toBe("bar");
-    expect(element.firstChild.dataset.elem1).toBe("foo");
-    expect(element.firstChild.dataset.elem2).toBe("bar");
+    assertAttributes(element);
 });
 
 it("check children text", async () => {
@@ -132,6 +123,28 @@ it("check children text", async () => {
     let element = await queryDOM(document, 'test-button');
 
     expect(element.firstChild.innerText).toBe("hello");
+});
+
+it("check children text", async () => {
+    const TestFirstContent = ({ children }) => <div>{children}</div>;
+    const TestSecondContent = ({ children }) => <div>{children}</div>;
+
+    const window = new Window();
+    const document = window.document;
+
+    defineElement(TestFirstContent, 'test-first-content', window);
+    defineElement(TestSecondContent, 'test-second-content', window);
+
+    document.write(`<test-first-content>
+        <test-second-content>hello</test-second-content>
+    </test-first-content>`);
+
+    let element = await queryDOM(document, 'test-first-content');
+
+    expect(element.firstChild.nodeName).toBe("DIV");
+    expect(element.firstChild.firstChild.nodeName).toBe("TEST-SECOND-CONTENT");
+    expect(element.firstChild.firstChild.firstChild.nodeName).toBe("DIV");
+    expect(element.firstChild.firstChild.firstChild.innerText).toBe("hello");
 });
 
 /**
@@ -305,20 +318,11 @@ it("check multiple children", async () => {
 
     const document = defineElement(TestContainer, 'test-container');
 
-    const container = document.createElement('test-container');
-    const elem1 = document.createElement('p');
-    const elem2 = document.createElement('div');
-    const elem3 = document.createElement('div');
-
-    elem1.innerText = "Paragraph";
-    elem2.innerText = "First div";
-    elem3.innerText = "Second div";
-
-    container.appendChild(elem1);
-    container.appendChild(elem2);
-    container.appendChild(elem3);
-
-    document.body.appendChild(container);
+    document.write(`<test-container>
+        <p>Paragraph</p>
+        <div>First div</div>
+        <div>Second div</div>
+    </test-container>`);
 
     let element = await queryDOM(document, 'test-container');
 
@@ -346,20 +350,10 @@ it("check slots", async () => {
 
     const document = defineElement(TestContainer, 'test-container');
 
-    const container = document.createElement('test-container');
-    const slot1 = document.createElement('p');
-    const slot2 = document.createElement('slot');
-
-    slot1.slot = "slot1";
-    slot1.innerText = "foo";
-
-    slot2.name = "slot2";
-    slot2.innerText = "bar";
-
-    container.appendChild(slot1);
-    container.appendChild(slot2);
-
-    document.body.appendChild(container);
+    document.write(`<test-container>
+        <p slot="slot1">foo</p>
+        <slot name="slot2">bar</slot>
+    </test-container>`);
 
     let element = await queryDOM(document, 'test-container');
 
@@ -404,9 +398,7 @@ it("check property changed", async () => {
 
     const document = defineElement(TestButton, 'test-button');
 
-    const button = document.createElement('test-button');
-    button.label = "foo";
-    document.body.appendChild(button);
+    document.write(`<test-button label="foo"></test-button>`);
 
     let element = await queryDOM(document, 'test-button');
 
@@ -421,26 +413,7 @@ it("check property changed", async () => {
 });
 
 it("check getAttributes and update props", async () => {
-    const TestButton = ({ someString, someBool, someNumber, someArray, someObject }) =>
-        <button data-string={someString}
-                data-bool={someBool}
-                data-number={someNumber}
-                data-prop1={someObject.prop1}
-                data-prop2={someObject.prop2}
-                data-elem1={someArray[0]}
-                data-elem2={someArray[1]}>
-            button
-        </button>;
-
-    TestButton.componentProps = {
-        someString: String,
-        someBool: Boolean,
-        someNumber: Number,
-        someArray: Array,
-        someObject: Object,
-    }
-
-    const document = defineElement(TestButton, 'test-button');
+    const document = defineElement(TestButtonAttributes(), 'test-button');
 
     const button = document.createElement('test-button');
     button.someString = "hello";
@@ -452,11 +425,7 @@ it("check getAttributes and update props", async () => {
 
     let element = await queryDOM(document, 'test-button');
 
-    expect(element.getAttribute("some-string")).toBe("hello");
-    expect(element.getAttribute("some-bool")).toBe("true");
-    expect(element.getAttribute("some-number")).toBe("9999");
-    expect(element.getAttribute("some-object")).toBe('{"prop1":"foo","prop2":"bar"}');
-    expect(element.getAttribute("some-array")).toBe('["foo","bar"]');
+    assertAttributes(element);
 
     element.someString = "bye";
     element.someBool = false;
@@ -478,16 +447,9 @@ it("check child with empty string", async () => {
 
     const document = defineElement(TestContainer, 'test-container');
 
-    const container = document.createElement('test-container');
-
-    let button = document.createElement('button');
-    button.innerText = 'Button';
-
-    container.append('\n    \n');
-    container.append(button);
-    container.append('\n    \n');
-
-    document.body.appendChild(container);
+    document.write(`<test-container>
+        <button>Button</button>
+    </test-container>`);
 
     let element = await queryDOM(document, 'test-container');
     let buttonNode = element.firstElementChild.firstElementChild;
@@ -538,17 +500,9 @@ it("check cascade children", async () => {
 
     const document = defineElement(TestContainer, 'test-container');
 
-    const container = document.createElement('test-container');
-    const h1 = document.createElement('h1');
-    const span = document.createElement('span');
-    const i = document.createElement('i');
-
-    span.append(i);
-    h1.append("foo bar");
-    h1.append(span);
-    container.append(h1);
-
-    document.body.appendChild(container);
+    document.write(`<test-container>
+        <h1>foo bar <span><i></i></span></h1>
+    </test-container>`);
 
     let element = await queryDOM(document, 'test-container');
     let div = element.firstChild;
