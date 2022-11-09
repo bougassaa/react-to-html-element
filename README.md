@@ -5,7 +5,7 @@
 [![Npm package version](https://badgen.net/npm/v/react-to-html-element)](https://www.npmjs.com/package/react-to-html-element)
 # react-to-html-element
 
-`react-to-html-element` turns a React component into a Web Component. To see a practical case of how to use in your existing applications, see the [Example](#example) section <small>(After reading the documentation of course 😊)</small>
+`react-to-html-element` turns a React component into a Web Component. To see a practical case of how to use in your existing applications, see the [Example](#example) section _(after reading the documentation of course 😊)_
 
 Sections :
 
@@ -20,7 +20,7 @@ Sections :
 
 ## Usages
 The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below. 
-<br><small>The use of [prop-types](https://www.npmjs.com/package/prop-types) has been removed, because in production mode `propTypes` is removed from the React component.</small>
+<br><sup>The use of [prop-types](https://www.npmjs.com/package/prop-types) has been removed, because in production mode `propTypes` is removed from the React component.</sup>
 
 ```js
 import React from 'react';
