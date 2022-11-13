@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import { expect, it } from 'vitest';
 import React, {forwardRef, useImperativeHandle, useState} from "react";
 import * as ReactDOM from "react-dom/client";
@@ -48,6 +49,27 @@ const TestButtonAttributes = () => {
     }
 
     return TestButton;
+}
+
+const assertNode = async (ReactElement) => {
+    const document = defineElement(ReactElement, 'test-container');
+
+    document.write(`<test-container>
+        <p slot="slot1">foo</p>
+        <slot name="slot2">bar</slot>
+    </test-container>`);
+
+    let element = await queryDOM(document, 'test-container');
+
+    expect(element.firstChild.childElementCount).toBe(2);
+
+    const children = element.firstChild.childNodes;
+
+    expect(children[0].nodeName).toBe("P");
+    expect(children[0].innerText).toBe("foo");
+
+    expect(children[1].nodeName).toBe("SLOT");
+    expect(children[1].innerText).toBe("bar");
 }
 
 it("render simple button and check text inside", async () => {
@@ -348,24 +370,18 @@ it("check slots", async () => {
         slot2: Node
     }
 
-    const document = defineElement(TestContainer, 'test-container');
+    await assertNode(TestContainer);
+});
 
-    document.write(`<test-container>
-        <p slot="slot1">foo</p>
-        <slot name="slot2">bar</slot>
-    </test-container>`);
+it("check slots using prop-types", async () => {
+    const TestContainer = ({ slot1, slot2 }) =>  <div>{slot1}{slot2}</div>;
 
-    let element = await queryDOM(document, 'test-container');
+    TestContainer.propTypes = {
+        slot1: PropTypes.node,
+        slot2: PropTypes.node
+    }
 
-    expect(element.firstChild.childElementCount).toBe(2);
-
-    const children = element.firstChild.childNodes;
-
-    expect(children[0].nodeName).toBe("P");
-    expect(children[0].innerText).toBe("foo");
-
-    expect(children[1].nodeName).toBe("SLOT");
-    expect(children[1].innerText).toBe("bar");
+    await assertNode(TestContainer);
 });
 
 it("check many elements including slot in same page", async () => {
@@ -512,4 +528,40 @@ it("check cascade children", async () => {
     expect(div.firstChild.childNodes[0].nodeName).toBe("#text");
     expect(div.firstChild.childNodes[1].nodeName).toBe("SPAN");
     expect(div.firstChild.childNodes[1].firstChild.nodeName).toBe("I");
+});
+
+it("check with prop-types", async () => {
+    const TestButton = ({ someString, someBool, someNumber, someArray, someObject }) =>
+        <button data-string={someString}
+                data-bool={someBool}
+                data-number={someNumber}
+                data-prop1={someObject.prop1}
+                data-prop2={someObject.prop2}
+                data-elem1={someArray[0]}
+                data-elem2={someArray[1]}>
+            button
+        </button>;
+
+    TestButton.propTypes = {
+        someString: PropTypes.string,
+        someBool: PropTypes.bool,
+        someNumber: PropTypes.number,
+        someArray: PropTypes.array,
+        someObject: PropTypes.object,
+    };
+
+    const document = defineElement(TestButton, 'test-button');
+
+    const button = document.createElement('test-button');
+    button.someString = "hello";
+    button.someBool = true;
+    button.someNumber = 9999;
+    button.someObject = { prop1: "foo", prop2: "bar" };
+    button.someArray = ["foo", "bar"];
+
+    document.body.appendChild(button);
+
+    let element = await queryDOM(document, 'test-button');
+
+    assertAttributes(element);
 });

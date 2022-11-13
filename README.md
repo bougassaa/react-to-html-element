@@ -19,11 +19,11 @@ Sections :
 - [Example](#example)
 
 ## Usages
-The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below. 
-<br><sup>The use of [prop-types](https://www.npmjs.com/package/prop-types) has been removed, because in production mode `propTypes` is removed from the React component.</sup>
+The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below.
 
 ```js
 import React from 'react';
+import PropTypes from "prop-types"; // add this line, if you want to declare with PropTypes
 
 const MyButton = ({ someBool, someNumber, someString, someObject, someArray, someSlot, children }) => {
     // do anything here with properties
@@ -34,6 +34,7 @@ const MyButton = ({ someBool, someNumber, someString, someObject, someArray, som
     );
 }
 
+// Declare as below without using prop-types
 MyButton.componentProps = {
     someBool: Boolean,
     someNumber: Number,
@@ -41,6 +42,16 @@ MyButton.componentProps = {
     someObject: Object,
     someArray: Array,
     someSlot: Node,
+}
+
+// Or else using prop-types 
+MyButton.propTypes = {
+    someBool: PropTypes.bool,
+    someNumber: PropTypes.number,
+    someString: PropTypes.string,
+    someObject: PropTypes.object,
+    someArray: PropTypes.array,
+    someSlot: PropTypes.node,
 }
 
 export default MyButton;

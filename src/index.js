@@ -1,18 +1,19 @@
-import { Parser, ProcessingInstructions } from 'html-to-react';
+import parsePropTypes from "parse-prop-types";
+import { Parser, ProcessingInstructions } from "html-to-react";
 
 const toCamelCase = (str = "") => {
-    return str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ''));
-}
+    return str.replace(/-(\w)/g, (_, c) => (c ? c.toUpperCase() : ""));
+};
 
 const toDashedStyle = (str = "") => {
-    return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()
-}
+    return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+};
 
 // turn the innerHTML into React children
 const parseChildren = (str) => {
     const isValidNode = (node) => {
         return !(node.type === "text" && !node.data.trim()); // remove empty text elements
-    }
+    };
 
     const parser = new Parser();
     const processingInstructions = new ProcessingInstructions();
@@ -23,20 +24,32 @@ const parseChildren = (str) => {
     }
 
     return child instanceof Array ? child.filter(child => child !== false) : [child];
-}
+};
+
+const getPropType = (typeInfo) => {
+    if (typeof typeInfo === "object" && "type" in typeInfo) {
+        return typeInfo.type.name;
+    } else {
+        return typeInfo;
+    }
+};
 
 // convert attribute values to their defined types
 const convertAttribute = (attribute, propsTypes) => {
     let propName = toCamelCase(attribute.name);
     let propValue = attribute.value;
 
-    switch (propsTypes[propName]) {
+    switch (getPropType(propsTypes[propName])) {
+        case "number":
         case Number:
             propValue = Number(propValue);
             break;
+        case "bool":
         case Boolean:
             propValue = !/^(false|0)$/i.test(propValue);
             break;
+        case "object":
+        case "array":
         case Array:
         case Object:
             propValue = JSON.parse(propValue);
@@ -47,7 +60,7 @@ const convertAttribute = (attribute, propsTypes) => {
         name: propName,
         value: propValue
     }
-}
+};
 
 /**
  * @param ReactComponent {ReactComponent|function}
@@ -67,7 +80,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
     }
 
     // retrieve properties and their types from the component definition
-    const propsTypes = ReactComponent.componentProps ?? {};
+    const propsTypes = ReactComponent.componentProps || parsePropTypes(ReactComponent) || {};
 
     class WebComponent extends HTMLElement {
         reactRoot = null;
@@ -106,7 +119,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
             props.rootElement = this; // inject web component inside ReactComponent props (can be used to dispatch events)
 
             if (!this.reactRoot) { // create React root for the first rendering
-                let container = options.modeShadow ? this.attachShadow({ mode: 'open' }) : this;
+                let container = options.modeShadow ? this.attachShadow({ mode: "open" }) : this;
                 this.reactRoot = ReactDOM.createRoot(container);
             }
 
@@ -136,7 +149,8 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
                         name = child.props.slot;
                     }
 
-                    if (name && propsTypes[name] === Node) {
+                    const type = getPropType(propsTypes[name]);
+                    if (name && (type === Node || type === "node")) {
                         slots[name] = child;
                     }
                 })
@@ -195,7 +209,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
                 return this.getAttribute(toDashedStyle(propName));
             },
             set(value) {
-                const v = typeof value === 'object' ? JSON.stringify(value) : value;
+                const v = typeof value === "object" ? JSON.stringify(value) : value;
                 this.setAttribute(toDashedStyle(propName), v);
             },
         });
