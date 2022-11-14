@@ -565,3 +565,15 @@ it("check with prop-types", async () => {
 
     assertAttributes(element);
 });
+
+it("check class name exist", async () => {
+    const TestButton = () => <button>Button</button>;
+
+    const document = defineElement(TestButton, 'test-button');
+
+    document.write(`<test-button></test-button>`);
+
+    let element = await queryDOM(document, 'test-button');
+
+    expect(element.classList.contains('html-element')).toBeTruthy();
+});

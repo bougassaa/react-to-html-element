@@ -289,6 +289,7 @@ The `register` function has as parameters :
   - `modeShadow` Create components in [shadow](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) mode.
   - `returnElement` The function returns the WebComponent to be overridden
   - `hasReactRef` The React component will have [ref](https://reactjs.org/docs/refs-and-the-dom.html) functionality enabled
+  - `className` CSS class that will be added to the HTML container
 
 ## Example
 See example on codesandbox: [https://codesandbox.io/s/react-to-html-element-397stp](https://codesandbox.io/s/react-to-html-element-397stp)

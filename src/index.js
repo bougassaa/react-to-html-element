@@ -73,7 +73,7 @@ const convertAttribute = (attribute, propsTypes) => {
  */
 export function register(ReactComponent, name, React, ReactDOM, options = {}) {
     // default options merged with user options
-    options = {...{modeShadow: false, returnElement: false, hasReactRef: false}, ...options}
+    options = {...{modeShadow: false, returnElement: false, hasReactRef: false, className: "html-element"}, ...options}
 
     if (!React || !ReactDOM) {
         throw "React and ReactDOM parameters must not be empty";
@@ -120,6 +120,11 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
 
             if (!this.reactRoot) { // create React root for the first rendering
                 let container = options.modeShadow ? this.attachShadow({ mode: "open" }) : this;
+
+                if (options.className) {
+                    container.classList.add(options.className);
+                }
+
                 this.reactRoot = ReactDOM.createRoot(container);
             }
 
