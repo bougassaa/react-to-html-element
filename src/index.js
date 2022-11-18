@@ -1,4 +1,5 @@
 import parsePropTypes from "parse-prop-types";
+import HTMLParsedElement from 'html-parsed-element';
 import { Parser, ProcessingInstructions } from "html-to-react";
 
 const toCamelCase = (str = "") => {
@@ -73,7 +74,7 @@ const convertAttribute = (attribute, propsTypes) => {
  */
 export function register(ReactComponent, name, React, ReactDOM, options = {}) {
     // default options merged with user options
-    options = {...{modeShadow: false, returnElement: false, hasReactRef: false, className: "html-element"}, ...options}
+    options = {...{modeShadow: false, returnElement: false, hasReactRef: false, className: "html-component"}, ...options}
 
     if (!React || !ReactDOM) {
         throw "React and ReactDOM parameters must not be empty";
@@ -82,31 +83,14 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
     // retrieve properties and their types from the component definition
     const propsTypes = ReactComponent.componentProps || parsePropTypes(ReactComponent) || {};
 
-    class WebComponent extends HTMLElement {
+    class WebComponent extends HTMLParsedElement {
         reactRoot = null;
         reactElement = null;
         reactChildren = null;
-        rendered = false;
 
-        connectedCallback() {
-            const childrenConnectedCallback = () => {
-                if (!this.rendered) {
-                    this.rendered = true;
-                    this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
-                    this.renderRoot();
-                }
-            }
-
-            // observe component children, they may take time to be ready => so [MutationObserver] used
-            const observer = new MutationObserver(childrenConnectedCallback);
-            const config = { childList: true };
-            observer.observe(this, config);
-
-            // make sure to disconnect
-            setTimeout(() => {
-                observer.disconnect();
-                childrenConnectedCallback();
-            }, 0);
+        parsedCallback() {
+            this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
+            this.renderRoot();
         }
 
         renderRoot() {

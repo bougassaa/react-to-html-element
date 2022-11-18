@@ -19,7 +19,7 @@ Sections :
 - [Example](#example)
 
 ## Usages
-The React component must declare its properties and their types in the static `componentProps` attribute, as in the example below.
+The React component must declare its properties and their types in the static `componentProps` attribute (or [prop-types](https://www.npmjs.com/package/prop-types)), as in the example below.
 
 ```js
 import React from 'react';
@@ -285,7 +285,7 @@ The `register` function has as parameters :
 - `name` The name of the desired WebComponent tag.
 - `React` The version of [React](https://www.npmjs.com/package/react) that was used to create the components.
 - `ReactDOM` The version of [ReactDOM](https://www.npmjs.com/package/react-dom) that was used to create the components.
-- `options` : object of options `default = {modeShadow: false, returnElement: false, hasReactRef: false, className: "html-element"}`
+- `options` : object of options `default = {modeShadow: false, returnElement: false, hasReactRef: false, className: "html-component"}`
   - `modeShadow` Create components in [shadow](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) mode.
   - `returnElement` The function returns the WebComponent to be overridden
   - `hasReactRef` The React component will have [ref](https://reactjs.org/docs/refs-and-the-dom.html) functionality enabled
