@@ -74,7 +74,7 @@ const convertAttribute = (attribute, propsTypes) => {
  */
 export function register(ReactComponent, name, React, ReactDOM, options = {}) {
     // default options merged with user options
-    options = {...{modeShadow: false, returnElement: false, hasReactRef: false, className: "html-component"}, ...options}
+    options = {...{modeShadow: false, returnElement: false, hasReactRef: false, className: "html-element"}, ...options}
 
     if (!React || !ReactDOM) {
         throw "React and ReactDOM parameters must not be empty";

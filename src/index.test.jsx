@@ -589,5 +589,5 @@ it("check class name exist", async () => {
 
     let element = await queryDOM(document, 'test-button');
 
-    expect(element.classList.contains('html-component')).toBeTruthy();
+    expect(element.classList.contains('html-element')).toBeTruthy();
 });

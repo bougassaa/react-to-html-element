@@ -106,6 +106,10 @@ class WCButton extends register(MyButton, null, React, ReactDOM, {returnElement:
 customElements.define('my-button', WCButton); // define your component to the DOM
 ```
 
+### parsedCallback
+This package uses [html-parsed-element](https://www.npmjs.com/package/html-parsed-element), to retrieve the children inside the custom element. You should know that in the `connectedCallback` method, the children do not exist at this time, they are added asynchronously, so `html-parsed-element` will allow it to be called when all the children exist in the custom element.
+**So it is better to override parsedCallback instead of connectedCallback**
+
 ## Slots
 It is possible to add [slots](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot) in your custom elements. They will be added to the React component props. Here is an example of how to do it :
 ```html
@@ -285,7 +289,7 @@ The `register` function has as parameters :
 - `name` The name of the desired WebComponent tag.
 - `React` The version of [React](https://www.npmjs.com/package/react) that was used to create the components.
 - `ReactDOM` The version of [ReactDOM](https://www.npmjs.com/package/react-dom) that was used to create the components.
-- `options` : object of options `default = {modeShadow: false, returnElement: false, hasReactRef: false, className: "html-component"}`
+- `options` : object of options `default = {modeShadow: false, returnElement: false, hasReactRef: false, className: "html-element"}`
   - `modeShadow` Create components in [shadow](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) mode.
   - `returnElement` The function returns the WebComponent to be overridden
   - `hasReactRef` The React component will have [ref](https://reactjs.org/docs/refs-and-the-dom.html) functionality enabled
