@@ -1,5 +1,4 @@
 import parsePropTypes from "parse-prop-types";
-import HTMLParsedElement from 'html-parsed-element';
 import { Parser, ProcessingInstructions } from "html-to-react";
 
 const toCamelCase = (str = "") => {
@@ -83,14 +82,35 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
     // retrieve properties and their types from the component definition
     const propsTypes = ReactComponent.componentProps || parsePropTypes(ReactComponent) || {};
 
-    class WebComponent extends HTMLParsedElement {
+    class WebComponent extends HTMLElement {
         reactRoot = null;
         reactElement = null;
         reactChildren = null;
+        renderTimeout = null;
+        renderTimeoutInterval = 5; // how long after adding children to render
+        observer = null;
 
-        parsedCallback() {
-            this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
-            this.renderRoot();
+        constructor() {
+            super();
+
+            this.observer = new MutationObserver(() => {
+                this.startRenderTimeout();
+            });
+        }
+
+        connectedCallback() {
+            this.startRenderTimeout();
+            this.observer.observe(this, {childList: true});
+        }
+
+        startRenderTimeout() {
+            clearTimeout(this.renderTimeout);
+
+            this.renderTimeout = setTimeout(() => {
+                this.observer.disconnect();
+                this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
+                this.renderRoot();
+            }, this.renderTimeoutInterval);
         }
 
         renderRoot() {

@@ -39,7 +39,6 @@
   },
   "homepage": "https://codesandbox.io/s/react-to-html-element-397stp",
   "dependencies": {
-    "html-parsed-element": "^0.4.1",
     "html-to-react": "^1.5.0",
     "parse-prop-types": "^0.3.0"
   },
