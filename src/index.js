@@ -62,6 +62,16 @@ const convertAttribute = (attribute, propsTypes) => {
     }
 };
 
+const isParsed = (el) => {
+    const root = el;
+    do {
+        if (el.nextSibling)
+            return true;
+    } while (el = el.parentNode);
+
+    return root.ownerDocument.readyState === "complete";
+};
+
 /**
  * @param ReactComponent {ReactComponent|function}
  * @param name {String}
@@ -86,31 +96,15 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
         reactRoot = null;
         reactElement = null;
         reactChildren = null;
-        renderTimeout = null;
-        renderTimeoutInterval = 5; // how long after adding children to render
-        observer = null;
-
-        constructor() {
-            super();
-
-            this.observer = new MutationObserver(() => {
-                this.startRenderTimeout();
-            });
-        }
 
         connectedCallback() {
-            this.startRenderTimeout();
-            this.observer.observe(this, {childList: true});
-        }
-
-        startRenderTimeout() {
-            clearTimeout(this.renderTimeout);
-
-            this.renderTimeout = setTimeout(() => {
-                this.observer.disconnect();
-                this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
-                this.renderRoot();
-            }, this.renderTimeoutInterval);
+            let interval = setInterval(() => {
+                if (isParsed(this)) {
+                    clearInterval(interval);
+                    this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
+                    this.renderRoot();
+                }
+            });
         }
 
         renderRoot() {
