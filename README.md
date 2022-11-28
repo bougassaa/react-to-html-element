@@ -106,10 +106,6 @@ class WCButton extends register(MyButton, null, React, ReactDOM, {returnElement:
 customElements.define('my-button', WCButton); // define your component to the DOM
 ```
 
-### parsedCallback
-This package uses [html-parsed-element](https://www.npmjs.com/package/html-parsed-element), to retrieve the children inside the custom element. You should know that in the `connectedCallback` method, the children do not exist at this time, they are added asynchronously, so `html-parsed-element` will allow it to be called when all the children exist in the custom element.
-**So it is better to override parsedCallback instead of connectedCallback**
-
 ## Slots
 It is possible to add [slots](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot) in your custom elements. They will be added to the React component props. Here is an example of how to do it :
 ```html

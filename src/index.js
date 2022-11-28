@@ -1,5 +1,4 @@
 import parsePropTypes from "parse-prop-types";
-import HTMLParsedElement from 'html-parsed-element';
 import { Parser, ProcessingInstructions } from "html-to-react";
 
 const toCamelCase = (str = "") => {
@@ -63,6 +62,16 @@ const convertAttribute = (attribute, propsTypes) => {
     }
 };
 
+const isParsed = (el) => {
+    const root = el;
+    do {
+        if (el.nextSibling)
+            return true;
+    } while (el = el.parentNode);
+
+    return root.ownerDocument.readyState === "complete";
+};
+
 /**
  * @param ReactComponent {ReactComponent|function}
  * @param name {String}
@@ -83,14 +92,19 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
     // retrieve properties and their types from the component definition
     const propsTypes = ReactComponent.componentProps || parsePropTypes(ReactComponent) || {};
 
-    class WebComponent extends HTMLParsedElement {
+    class WebComponent extends HTMLElement {
         reactRoot = null;
         reactElement = null;
         reactChildren = null;
 
-        parsedCallback() {
-            this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
-            this.renderRoot();
+        connectedCallback() {
+            let interval = setInterval(() => {
+                if (isParsed(this)) {
+                    clearInterval(interval);
+                    this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
+                    this.renderRoot();
+                }
+            });
         }
 
         renderRoot() {

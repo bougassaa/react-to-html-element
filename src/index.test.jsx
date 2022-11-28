@@ -13,8 +13,6 @@ const defineElement = (ReactComponent, tagName, win = null) => {
     const element = register(ReactComponent, null, React, ReactDOM, {returnElement: true});
     const window = win ?? new Window();
 
-    element.prototype.connectedCallback = element.prototype.parsedCallback;
-
     window.customElements.define(tagName, element);
 
     return window.document;
@@ -274,10 +272,6 @@ it("check ref component", async () => {
         focusInput() {
             this.getReactRef().focus();
         }
-
-        connectedCallback() {
-            this.parsedCallback()
-        }
     }
 
     const window = new Window();
@@ -319,10 +313,6 @@ it("check ref component with function that return value", async () => {
     {
         isValid() {
             return this.getReactRef().isValid();
-        }
-
-        connectedCallback() {
-            this.parsedCallback()
         }
     }
 
@@ -497,10 +487,6 @@ it("check function inside component that change value", async () => {
     {
         setDefaultValue() {
             this.value = 'Default value';
-        }
-
-        connectedCallback() {
-            this.parsedCallback()
         }
     }
 
