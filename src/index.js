@@ -62,16 +62,6 @@ const convertAttribute = (attribute, propsTypes) => {
     }
 };
 
-const isParsed = (el) => {
-    const root = el;
-    do {
-        if (el.nextSibling)
-            return true;
-    } while (el = el.parentNode);
-
-    return root.ownerDocument.readyState === "complete";
-};
-
 /**
  * @param ReactComponent {ReactComponent|function}
  * @param name {String}
@@ -96,18 +86,84 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
         reactRoot = null;
         reactElement = null;
         reactChildren = null;
+        observer;
 
         connectedCallback() {
-            let interval = setInterval(() => {
-                if (isParsed(this)) {
-                    clearInterval(interval);
-                    this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
-                    this.renderRoot();
+            this.setCustomId();
+            this.setChildrenParent();
+
+            this.observer = new MutationObserver(() => {
+                if (this.isRendered()) {
+                    this.setIsHydrated();
+                    this.observer.disconnect();
+
+                    const parent = this.getCustomParent();
+
+                    if (parent && parent.allChildrenHydrated()) {
+                        parent.parseChildAndRender();
+                    }
                 }
             });
+
+            this.observer.observe(this, { childList: true });
+
+            if (this.allChildrenHydrated() && !this.isHydrated()) {
+                this.parseChildAndRender();
+            }
+        }
+
+        allChildrenHydrated() {
+            return this.getChildrenNotHydrated().length === 0;
+        }
+
+        setChildrenParent() {
+            this.getChildrenNotHydrated()
+                .forEach(child => {
+                    child.setAttribute("custom-parent", this.getAttribute("custom"));
+                });
+        }
+
+        getChildrenNotHydrated() {
+            return this.querySelectorAll('[custom]:not([custom-state="hydrated"])');
+        }
+
+        getCustomParent() {
+            const id = this.getAttribute("custom-parent");
+            return this.closest(`[custom="${id}"]`);
+        }
+
+        setIsHydrated() {
+            this.setAttribute("custom-state", "hydrated");
+        }
+
+        setIsRendered() {
+            this.setAttribute("custom-state", "rendered");
+        }
+
+        isHydrated() {
+            return this.getAttribute("custom-state") === "hydrated";
+        }
+
+        isRendered() {
+            return this.getAttribute("custom-state") === "rendered";
+        }
+
+        setCustomId() {
+            if (!Number.parseInt(this.getAttribute("custom"))) {
+                this.setAttribute("custom", Math.random().toString(36));
+            }
+        }
+
+        parseChildAndRender() {
+            this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
+            this.renderRoot();
         }
 
         renderRoot() {
+            if (!this.isHydrated()) {
+                this.setIsRendered();
+            }
+
             let props = {...this.getProps(), ...this.getSlots()};
 
             if (options.hasReactRef) {

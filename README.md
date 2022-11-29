@@ -352,11 +352,11 @@ These files contain your WebComponents ready to be used anywhere! How to use the
 <html>
 <head>
     <link rel="stylesheet" href="build/static/css/main.2e73bf20.css">
-    <script src="build/static/js/main.e77e15c3.js"></script> <!-- To not see flickering (or visual glitch) it is advisable to put in the head -->
-    ...
 </head>
 <body>
     <my-button>Button</my-button>
+
+    <script src="build/static/js/main.e77e15c3.js"></script> <-- put the build here
 </body>
 </html>
 ```

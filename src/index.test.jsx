@@ -577,3 +577,19 @@ it("check class name exist", async () => {
 
     expect(element.classList.contains('html-element')).toBeTruthy();
 });
+
+it("render simple button and check if is hydrated", async () => {
+    const TestButton = ({ label }) => <button>{label}</button>;
+
+    TestButton.componentProps = {
+        label: String
+    }
+
+    const document = defineElement(TestButton, 'test-button');
+
+    document.write(`<test-button label="Button content"></test-button>`);
+
+    let element = await queryDOM(document, 'test-button');
+
+    expect(element.getAttribute("custom-state")).toBe('hydrated');
+});
