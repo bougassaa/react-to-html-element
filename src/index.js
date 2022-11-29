@@ -97,6 +97,113 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
         reactElement = null;
         reactChildren = null;
 
+        // TODO : ##### STASHED WORK START ######
+
+        connectedCallback() {
+            this.setCustomId();
+            this.setChildrenParent();
+
+            if (isParsed(this)) {
+                this.handleMutation();
+            }
+
+            const observer = new MutationObserver(() => {
+                this.handleMutation();
+            });
+
+            observer.observe(this, { childList: true });
+        }
+
+        handleMutation() {
+            if (isParsed(this) && this.allChildrenHydrated() && !this.isRendered()) {
+                this.parseChildAndRender();
+            } else if (this.isRendered()) {
+                this.setIsHydrated();
+
+                const parent = this.getCustomParent();
+
+                if (parent && !parent.isHydrated()) {
+                    if (parent.allChildrenHydrated()) {
+                        parent.setIsHydrated();
+                        parent.parseChildAndRender();
+                    } else {
+                        parent.fixChildrenNotRendered();
+                    }
+                }
+            }
+        }
+
+        allChildrenHydrated() {
+            return this.getChildrenNotHydrated().length === 0;
+        }
+
+        setChildrenParent() {
+            this.getChildrenNotHydrated()
+                .forEach(child => {
+                    child.setAttribute("custom-parent", this.getAttribute("custom"));
+                });
+        }
+
+        getChildrenNotHydrated() {
+            return this.querySelectorAll('[custom]:not([custom-state="hydrated"])');
+        }
+
+        getCustomParent() {
+            const id = this.getAttribute("custom-parent");
+            return this.closest(`[custom="${id}"]`);
+        }
+
+        fixChildrenNotRendered() {
+            let last = this.querySelector('[custom]:last-child');
+
+            if (last && last.isHydrated()) {
+                this.getChildrenNotHydrated().forEach(child => {
+                    if (isParsed(child)) {
+                        child.parseChildAndRender();
+                    }
+                });
+            }
+        }
+
+        setIsHydrated() {
+            this.setAttribute("custom-state", "hydrated");
+        }
+
+        setIsRendered() {
+            this.setAttribute("custom-state", "rendered");
+        }
+
+        isHydrated() {
+            return this.getAttribute("custom-state") === "hydrated";
+        }
+
+        isRendered() {
+            return this.getAttribute("custom-state") === "rendered";
+        }
+
+        setCustomId() {
+            if (!Number.parseInt(this.getAttribute("custom"))) {
+                this.setAttribute("custom", Math.random().toString(36));
+            }
+        }
+
+        parseChildAndRender() {
+            this.reactChildren = parseChildren(this.innerHTML); // extract and store children elements
+            this.renderRoot();
+        }
+
+        renderRoot() {
+            this.setIsRendered(); // todo : this important
+
+            if (!this.reactRoot) { // create React root for the first rendering
+                this.reactRoot = ReactDOM.createRoot(this);
+            }
+            this.reactElement = React.createElement(ReactComponent, {}, this.reactChildren);
+            this.reactRoot.render(this.reactElement);
+        }
+
+        // TODO : ##### STASHED WORK END ######
+
         connectedCallback() {
             let interval = setInterval(() => {
                 if (isParsed(this)) {
