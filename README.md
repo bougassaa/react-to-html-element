@@ -16,6 +16,7 @@ Sections :
 - [Usage of Ref](#usage-of-ref)
 - [Update attributes](#update-attributes)
 - [API](#api)
+  - [Conflicts to avoid](#conflicts-to-avoid)
 - [Example](#example)
 
 ## Usages
@@ -291,6 +292,22 @@ The `register` function has as parameters :
   - `hasReactRef` The React component will have [ref](https://reactjs.org/docs/refs-and-the-dom.html) functionality enabled
   - `className` CSS class that will be added to the HTML container
 
+### Conflicts to avoid
+There are points to know to allow the proper functioning of this package:
+
+- If you rewrite the `connectedCallback` method of the returned component always call the parent by doing: `super.connectedCallback();`
+- Do not use these properties in your components: `custom` `custom-parent` `custom-state`
+- If you encounter a problem of [FOUC](https://en.wikipedia.org/wiki/Flash_of_unstyled_content), flickering, glitch (visual problem), add these CSS rules:
+```css
+[custom]:not([custom-state="hydrated"]) {
+    visibility: hidden;
+}
+
+:not(:defined) {
+    visibility: hidden;
+}
+```
+
 ## Example
 See example on codesandbox: [https://codesandbox.io/s/react-to-html-element-397stp](https://codesandbox.io/s/react-to-html-element-397stp)
 
@@ -356,7 +373,7 @@ These files contain your WebComponents ready to be used anywhere! How to use the
 <body>
     <my-button>Button</my-button>
 
-    <script src="build/static/js/main.e77e15c3.js"></script> <-- put the build here
+    <script src="build/static/js/main.e77e15c3.js"></script> <-- put the JS build here
 </body>
 </html>
 ```
