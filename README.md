@@ -58,8 +58,6 @@ MyButton.propTypes = {
 export default MyButton;
 ```
 
-The `children`, `rootElement` and `ref` properties do not need to be declared, they will be automatically injected into the component.
-
 Then after declaring the properties, you must register your React components as WebComponent, like this :
 
 ```js
@@ -296,6 +294,7 @@ The `register` function has as parameters :
 There are points to know to allow the proper functioning of this package:
 
 - If you rewrite the `connectedCallback` method of the returned component always call the parent by doing: `super.connectedCallback();`
+- The `children`, `rootElement` and `ref` properties do not need to be declared, they will be automatically injected into the component.
 - Do not use these properties in your components: `custom` `custom-parent` `custom-state`
 - If you encounter a problem of [FOUC](https://en.wikipedia.org/wiki/Flash_of_unstyled_content), flickering, glitch (visual problem), add these CSS rules:
 ```css
