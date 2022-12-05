@@ -199,7 +199,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
             let slots = {};
 
             if (this.reactChildren instanceof Array) {
-                this.reactChildren.forEach(child => {
+                this.reactChildren = this.reactChildren.filter(child => {
                     let name;
 
                     if (child.type === "slot" && child?.props?.name) {
@@ -211,7 +211,10 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
                     const type = getPropType(propsTypes[name]);
                     if (name && (type === Node || type === "node")) {
                         slots[name] = child;
+                        return false; // remove slot form children array
                     }
+
+                    return true;
                 })
             }
 
