@@ -54,6 +54,10 @@ const convertAttribute = (attribute, propsTypes) => {
         case Object:
             propValue = JSON.parse(propValue);
             break;
+        case "func":
+        case Function:
+            propValue = eval(propValue);
+            break;
     }
 
     return {

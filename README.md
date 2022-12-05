@@ -43,6 +43,7 @@ MyButton.componentProps = {
     someObject: Object,
     someArray: Array,
     someSlot: Node,
+    someFunc: Function,
 }
 
 // Or else using prop-types 
@@ -53,6 +54,7 @@ MyButton.propTypes = {
     someObject: PropTypes.object,
     someArray: PropTypes.array,
     someSlot: PropTypes.node,
+    someFunc: PropTypes.func,
 }
 
 export default MyButton;
@@ -276,6 +278,23 @@ button.setAttribute("some-string", "Good bye");
 button.someArray = [1, 2, 3];
 button.someBool = true;
 // ...
+```
+
+Function attributes need a reference to declared function:
+```html
+
+<my-button handle-click="sayHello"></my-button>
+<my-button handle-click="Greeting.sayHello"></my-button>
+
+<script>
+  function sayHello() { ... }
+  
+  class Greeting {
+    static sayHello() { ... }
+  }
+</script>
+
+// and retrieve the function inside you React component (props.handleClick)
 ```
 ## API
 The `register` function has as parameters :
