@@ -40,6 +40,10 @@ const convertAttribute = (attribute, propsTypes) => {
     let propValue = attribute.value;
 
     switch (getPropType(propsTypes[propName])) {
+        case "string":
+        case String:
+            propValue = ['null', 'undefined'].indexOf(propValue) >= 0 ? null : propValue;
+            break;
         case "number":
         case Number:
             propValue = Number(propValue);

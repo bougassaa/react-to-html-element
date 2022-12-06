@@ -593,3 +593,24 @@ it("render simple button and check if is hydrated", async () => {
 
     expect(element.getAttribute("custom-state")).toBe('hydrated');
 });
+
+it("check null value of string props", async () => {
+    const TestButton = ({ label }) => <button>{label}</button>;
+
+    TestButton.componentProps = {
+        label: String
+    }
+
+    const document = defineElement(TestButton, 'test-button');
+
+    const button = document.createElement('test-button');
+    button.label = null;
+
+    let element = await queryDOM(document, 'test-button');
+
+    document.body.appendChild(button);
+
+    element = await queryDOM(document, 'test-button > button');
+
+    expect(element.innerText.length).toBe(0);
+});
