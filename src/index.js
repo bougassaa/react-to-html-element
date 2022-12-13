@@ -115,6 +115,7 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
 
     class WebComponent extends HTMLElement {
         reactRoot = null;
+        reactSlots = null;
         reactElement = null;
         reactChildren = null;
         observer;
@@ -227,6 +228,10 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
         }
 
         getSlots() {
+            if (this.reactSlots) {
+                return this.reactSlots;
+            }
+
             let slots = {};
 
             if (this.reactChildren instanceof Array) {
@@ -247,6 +252,10 @@ export function register(ReactComponent, name, React, ReactDOM, options = {}) {
 
                     return true;
                 })
+            }
+
+            if (Object.keys(slots).length > 0) {
+                this.reactSlots = slots;
             }
 
             return slots;
