@@ -614,3 +614,17 @@ it("check null value of string props", async () => {
 
     expect(element.innerText.length).toBe(0);
 });
+
+it("check value attribute of input", async () => {
+    const TestDiv = ({ children }) => <div>{children}</div>;
+
+    const document = defineElement(TestDiv, 'test-div');
+
+    document.write(`<test-div>
+        <input type="text" value="toto">
+    </test-div>`);
+
+    let element = await queryDOM(document, 'test-div input');
+
+    expect(element.value).toBe('toto');
+});

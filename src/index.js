@@ -9,6 +9,27 @@ const toDashedStyle = (str = "") => {
     return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 };
 
+const handleValueAttr = (children) => {
+    return children.map(child => {
+        if (typeof child.props === "object") {
+            child = {...child};
+            child.props = {...child.props}
+        }
+
+        if (['input', 'textarea', 'select'].indexOf(child.type) >= 0 && child?.props?.value) {
+            child.props.defaultValue = child.props.value;
+            delete child.props.value;
+        }
+
+        if (child?.props?.children) {
+            let c = Array.isArray(child.props.children) ? child.props.children : [child.props.children];
+            child.props.children = handleValueAttr(c);
+        }
+
+        return child;
+    });
+}
+
 // turn the innerHTML into React children
 const parseChildren = (str) => {
     const isValidNode = (node) => {
@@ -23,7 +44,9 @@ const parseChildren = (str) => {
         return null;
     }
 
-    return child instanceof Array ? child.filter(child => child !== false) : [child];
+    let reactChildren = child instanceof Array ? child.filter(child => child !== false) : [child];
+
+    return handleValueAttr(reactChildren);
 };
 
 const getPropType = (typeInfo) => {
