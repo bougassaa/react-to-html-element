@@ -15,7 +15,7 @@ const handleValueAttr = (children) => {
             child = {...child};
             child.props = {...child.props}
 
-            if (['input', 'textarea', 'select'].indexOf(child.type) >= 0 && Object.hasOwn(child.props, 'value')) {
+            if (['input', 'textarea', 'select'].indexOf(child.type) >= 0 && child.props.hasOwnProperty('value')) {
                 child.props.defaultValue = child.props.value;
                 delete child.props.value;
             }
