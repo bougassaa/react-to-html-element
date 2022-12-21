@@ -14,16 +14,16 @@ const handleValueAttr = (children) => {
         if (typeof child.props === "object") {
             child = {...child};
             child.props = {...child.props}
-        }
 
-        if (['input', 'textarea', 'select'].indexOf(child.type) >= 0 && child?.props?.value) {
-            child.props.defaultValue = child.props.value;
-            delete child.props.value;
-        }
+            if (['input', 'textarea', 'select'].indexOf(child.type) >= 0 && Object.hasOwn(child.props, 'value')) {
+                child.props.defaultValue = child.props.value;
+                delete child.props.value;
+            }
 
-        if (child?.props?.children) {
-            let c = Array.isArray(child.props.children) ? child.props.children : [child.props.children];
-            child.props.children = handleValueAttr(c);
+            if (child.props?.children) {
+                let c = Array.isArray(child.props.children) ? child.props.children : [child.props.children];
+                child.props.children = handleValueAttr(c);
+            }
         }
 
         return child;
